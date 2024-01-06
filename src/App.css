@@ -36,3 +36,40 @@
     transform: rotate(360deg);
   }
 }
+
+/* src/App.css */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Set container width to 100% */
+.container {
+  width: 100%;
+}
+
+.paper-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Add these styles for NavBar */
+.AppBar {
+  background-color: #2196f3;
+}
+
+.Toolbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.MuiSwitch-root {
+  color: #2196f3;
+}
+
+.MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  background-color: #2196f3;
+}
