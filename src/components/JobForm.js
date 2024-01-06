@@ -8,7 +8,9 @@ const JobForm = ({ onSubmit }) => {
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState('');
   const [jobType, setJobType] = useState('');
+  const [jobPostingUrl, setJobPostingUrl] = useState('');
   const [dashboardUrl, setDashboardUrl] = useState('');
+  const [jobPostingSource, setJobPostingSource] = useState('');
   const [referral, setReferral] = useState(false);
   const [referrerName, setReferrerName] = useState('');
 
@@ -17,6 +19,8 @@ const JobForm = ({ onSubmit }) => {
   const [titleError, setTitleError] = useState('');
   const [companyError, setCompanyError] = useState('');
   const [jobTypeError, setJobTypeError] = useState('');
+  const [jobPostingUrlError, setJobPostingUrlError] = useState('');
+  const [jobPostingSourceError, setJobPostingSourceError] = useState('');
   const [referrerNameError, setReferrerNameError] = useState('');
 
   const handleSubmit = (e) => {
@@ -27,6 +31,8 @@ const JobForm = ({ onSubmit }) => {
     setTitleError('');
     setCompanyError('');
     setJobTypeError('');
+    setJobPostingUrlError('');
+    setJobPostingSourceError('');
     setReferrerNameError('');
 
     // Validation checks for required fields
@@ -50,6 +56,16 @@ const JobForm = ({ onSubmit }) => {
       return;
     }
 
+    if (!jobPostingUrl.trim()) {
+      setJobPostingUrlError('Job Posting URL is required');
+      return;
+    }
+
+    if (!jobPostingSource) {
+      setJobPostingSourceError('Job Posting Source is required');
+      return;
+    }
+
     // Additional check for referral and referrerName
     if (referral && !referrerName.trim()) {
       setReferrerNameError('Referrer Name is required if referral is checked');
@@ -62,6 +78,8 @@ const JobForm = ({ onSubmit }) => {
       title,
       company,
       jobType,
+      jobPostingUrl,
+      jobPostingSource,
       dashboardUrl,
       referral,
       referrerName: referral ? referrerName : null, // Send referrerName only if referral is checked
@@ -72,6 +90,8 @@ const JobForm = ({ onSubmit }) => {
         setTitle('');
         setCompany('');
         setJobType('');
+        setJobPostingUrl('');
+        setJobPostingSource('');
         setDashboardUrl('');
         setReferral(false);
         setReferrerName('');
@@ -139,6 +159,39 @@ const JobForm = ({ onSubmit }) => {
             </FormControl>
             {jobTypeError && (
               <p style={{ color: 'red', margin: '5px 0 0', fontSize: '0.75rem' }}>{jobTypeError}</p>
+            )}
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Job Posting URL"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={jobPostingUrl}
+              onChange={(e) => setJobPostingUrl(e.target.value)}
+              error={!!jobPostingUrlError}
+              helperText={jobPostingUrlError}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl variant="outlined" fullWidth margin="normal">
+              <InputLabel id="job-posting-source-label">Job Posting Source</InputLabel>
+              <Select
+                labelId="job-posting-source-label"
+                id="job-posting-source"
+                value={jobPostingSource}
+                onChange={(e) => setJobPostingSource(e.target.value)}
+                label="Job Posting Source"
+                error={!!jobPostingSourceError}
+              >
+                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="LinkedIn">LinkedIn</MenuItem>
+                <MenuItem value="Indeed">Indeed</MenuItem>
+                <MenuItem value="Built-In">Built-In</MenuItem>
+              </Select>
+            </FormControl>
+            {jobPostingSourceError && (
+              <p style={{ color: 'red', margin: '5px 0 0', fontSize: '0.75rem' }}>{jobPostingSourceError}</p>
             )}
           </Grid>
           <Grid item xs={12}>
