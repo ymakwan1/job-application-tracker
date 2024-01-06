@@ -1,6 +1,6 @@
 // src/components/JobForm.js
-import React, { useState } from 'react';
-import { TextField, Button, Grid, Paper, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { TextField, Button, Grid, Paper, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Autocomplete } from '@mui/material';
 import axios from 'axios';
 
 const JobForm = ({ onSubmit }) => {
@@ -13,8 +13,7 @@ const JobForm = ({ onSubmit }) => {
   const [jobPostingSource, setJobPostingSource] = useState('');
   const [referral, setReferral] = useState(false);
   const [referrerName, setReferrerName] = useState('');
-
-  // Error states
+  const [companyOptions, setCompanyOptions] = useState([]);
   const [jobIdError, setJobIdError] = useState('');
   const [titleError, setTitleError] = useState('');
   const [companyError, setCompanyError] = useState('');
@@ -23,10 +22,15 @@ const JobForm = ({ onSubmit }) => {
   const [jobPostingSourceError, setJobPostingSourceError] = useState('');
   const [referrerNameError, setReferrerNameError] = useState('');
 
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/companies')
+      .then(response => setCompanyOptions(response.data))
+      .catch(error => console.error('Error fetching companies:', error));
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Reset previous errors
     setJobIdError('');
     setTitleError('');
     setCompanyError('');
@@ -35,7 +39,6 @@ const JobForm = ({ onSubmit }) => {
     setJobPostingSourceError('');
     setReferrerNameError('');
 
-    // Validation checks for required fields
     if (!jobId.trim()) {
       setJobIdError('Job ID is required');
       return;
@@ -66,13 +69,11 @@ const JobForm = ({ onSubmit }) => {
       return;
     }
 
-    // Additional check for referral and referrerName
     if (referral && !referrerName.trim()) {
       setReferrerNameError('Referrer Name is required if referral is checked');
       return;
     }
 
-    // If all validations pass, submit the form
     axios.post('http://localhost:5000/api/jobs', {
       jobId,
       title,
@@ -82,7 +83,7 @@ const JobForm = ({ onSubmit }) => {
       jobPostingSource,
       dashboardUrl,
       referral,
-      referrerName: referral ? referrerName : null, // Send referrerName only if referral is checked
+      referrerName: referral ? referrerName : null,
     })
       .then(response => {
         onSubmit(response.data);
@@ -128,15 +129,22 @@ const JobForm = ({ onSubmit }) => {
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Company"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              error={!!companyError}
-              helperText={companyError}
+            <Autocomplete
+              options={companyOptions}
+              getOptionLabel={(option) => option}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Company"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  error={!!companyError}
+                  helperText={companyError}
+                />
+              )}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -194,17 +202,7 @@ const JobForm = ({ onSubmit }) => {
               <p style={{ color: 'red', margin: '5px 0 0', fontSize: '0.75rem' }}>{jobPostingSourceError}</p>
             )}
           </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Dashboard URL"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={dashboardUrl}
-              onChange={(e) => setDashboardUrl(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={6}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -217,7 +215,7 @@ const JobForm = ({ onSubmit }) => {
             />
           </Grid>
           {referral && (
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 label="Referrer Name"
                 variant="outlined"
