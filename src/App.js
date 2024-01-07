@@ -1,11 +1,10 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider, CssBaseline } from '@mui/material';
 import { Route, Routes } from 'react-router-dom';
 import JobForm from './components/JobForm';
 import NavBar from './components/NavBar';
 import UpdateJob from './components/UpdateJob';
-import './style.css';
+
 const App = () => {
   const [jobs, setJobs] = useState([]);
   const [isDarkTheme, setIsDarkTheme] = useState(false);

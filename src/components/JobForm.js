@@ -127,11 +127,16 @@ const JobForm = ({ onSubmit }) => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      minHeight="100vh"
+      minHeight="80vh"
     >
       <Paper
         elevation={3}
-        style={{ padding: '30px', width: '500px', maxWidth: '100%', margin: 'auto' }}
+        style={{
+          padding: '30px',
+          width: '800px',
+          maxWidth: '100%',
+          margin: 'auto',
+        }}
       >
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
