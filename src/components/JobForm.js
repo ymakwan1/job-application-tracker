@@ -127,7 +127,9 @@ const JobForm = ({ onSubmit }) => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      minHeight="80vh"
+      minHeight="100vh"
+      width="100%"  
+      style={{ backgroundColor: '#f0f0f0' }}
     >
       <Paper
         elevation={3}
