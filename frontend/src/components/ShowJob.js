@@ -20,6 +20,7 @@ import {
 import MuiAlert from '@mui/material/Alert';
 import axios from 'axios';
 
+
 const ShowJob = () => {
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
@@ -28,7 +29,6 @@ const ShowJob = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Fetch jobs from the server
     axios
       .get('http://127.0.0.1:5000/api/show_jobs')
       .then((response) => {
@@ -43,14 +43,11 @@ const ShowJob = () => {
   }, [deletedJobId]);
 
   const handleDelete = (jobId) => {
-    // Perform deletion logic here
     axios
       .delete(`http://127.0.0.1:5000/api/delete_job/${jobId}`)
       .then(() => {
         setDeletedJobId(jobId);
         setShowSuccess(true);
-
-        // Reset success message after 5 seconds
         setTimeout(() => {
           setShowSuccess(false);
           setDeletedJobId(null);
@@ -60,11 +57,9 @@ const ShowJob = () => {
   };
 
   const handleStatusChange = (jobId, newStatus) => {
-    // Update status logic here
     axios
       .put(`http://127.0.0.1:5000/api/update_status/${jobId}`, { newStatus })
       .then(() => {
-        // Fetch updated job list
         axios
           .get('http://127.0.0.1:5000/api/show_jobs')
           .then((response) => {
