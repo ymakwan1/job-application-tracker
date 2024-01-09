@@ -15,6 +15,9 @@ const NavBar = ({ toggleTheme, isDarkTheme }) => {
           </Link>
         </Typography>
         <div>
+          <Link to="/show-jobs" style={{ textDecoration: 'none', color: 'inherit', marginRight: '20px' }}>
+            Show Jobs
+          </Link>
           <Link to="/update-job" style={{ textDecoration: 'none', color: 'inherit', marginRight: '20px' }}>
             Update Job
           </Link>

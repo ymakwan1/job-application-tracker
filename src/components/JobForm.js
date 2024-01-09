@@ -1,5 +1,5 @@
 // src/components/JobForm.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   TextField,
   Button,
@@ -11,13 +11,18 @@ import {
   InputLabel,
   Checkbox,
   FormControlLabel,
-  Autocomplete,
   Box,
+  Snackbar,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import MuiAlert from '@mui/material/Alert';
 import axios from 'axios';
+
+const CustomAlert = React.forwardRef(function CustomAlert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const JobForm = ({ onSubmit }) => {
   const [jobId, setJobId] = useState('');
@@ -30,7 +35,6 @@ const JobForm = ({ onSubmit }) => {
   const [dateApplied, setDateApplied] = useState(null);
   const [referral, setReferral] = useState(false);
   const [referrerName, setReferrerName] = useState('');
-  const [companyOptions, setCompanyOptions] = useState([]);
   const [jobIdError, setJobIdError] = useState('');
   const [titleError, setTitleError] = useState('');
   const [companyError, setCompanyError] = useState('');
@@ -40,13 +44,8 @@ const JobForm = ({ onSubmit }) => {
   const [jobPostingSourceError, setJobPostingSourceError] = useState('');
   const [referrerNameError, setReferrerNameError] = useState('');
   const [dateAppliedError, setDateAppliedError] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    axios
-      .get('http://localhost:5000/api/companies')
-      .then((response) => setCompanyOptions(response.data))
-      .catch((error) => console.error('Error fetching companies:', error));
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -107,7 +106,7 @@ const JobForm = ({ onSubmit }) => {
     }
 
     axios
-      .post('http://localhost:5000/api/jobs', {
+      .post('http://127.0.0.1:5000/api/jobs', {
         jobId,
         title,
         company,
@@ -131,6 +130,12 @@ const JobForm = ({ onSubmit }) => {
         setDateApplied(null);
         setReferral(false);
         setReferrerName('');
+        setShowSuccess(true);
+
+        // Reset success message after 5 seconds
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 5000);
       })
       .catch((error) => console.error('Error adding job:', error));
   };
@@ -181,22 +186,15 @@ const JobForm = ({ onSubmit }) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Autocomplete
-                  options={companyOptions}
-                  getOptionLabel={(option) => option}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Company"
-                      variant="outlined"
-                      fullWidth
-                      margin="normal"
-                      value={company}
-                      onChange={(e) => setCompany(e.target.value)}
-                      error={!!companyError}
-                      helperText={companyError}
-                    />
-                  )}
+                <TextField
+                  label="Company"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  error={!!companyError}
+                  helperText={companyError}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -272,19 +270,18 @@ const JobForm = ({ onSubmit }) => {
               </Grid>
               <Grid item xs={12} sm={6} style={{ display: 'flex', alignItems: 'center' }}>
                 <FormControl variant="outlined" fullWidth margin="normal">
-                    <DatePicker
+                  <DatePicker
                     value={dateApplied}
                     onChange={(newValue) => setDateApplied(newValue)}
                     renderInput={(params) => (
-                        <TextField
+                      <TextField
                         {...params}
                         variant="outlined"
-                        label="" 
                         error={!!dateAppliedError}
                         helperText={dateAppliedError}
-                        />
+                      />
                     )}
-                    />
+                  />
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
@@ -317,6 +314,17 @@ const JobForm = ({ onSubmit }) => {
                 <Button type="submit" variant="contained" color="primary" fullWidth>
                   Add Job
                 </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Snackbar
+                  open={showSuccess}
+                  autoHideDuration={5000}
+                  onClose={() => setShowSuccess(false)}
+                >
+                  <CustomAlert onClose={() => setShowSuccess(false)} severity="success">
+                    Job added successfully!
+                  </CustomAlert>
+                </Snackbar>
               </Grid>
             </Grid>
           </form>

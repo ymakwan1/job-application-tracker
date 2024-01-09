@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import JobForm from './components/JobForm';
 import NavBar from './components/NavBar';
 import UpdateJob from './components/UpdateJob';
-
+import ShowJob from './components/ShowJob'
 const App = () => {
   const [jobs, setJobs] = useState([]);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -43,6 +43,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<JobForm onSubmit={addJob} />} />
             <Route path="/update-job" element={<UpdateJob />} />
+            <Route path="/show-jobs" element={<ShowJob />} />
           </Routes>
         </div>
       </div>
