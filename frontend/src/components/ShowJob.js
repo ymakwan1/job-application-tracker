@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, Button, Snackbar, FormControl, Select, MenuItem, InputAdornment, TextField } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, Button, Snackbar, FormControl, Select, MenuItem, InputAdornment, TextField,InputLabel } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import axios from 'axios';
 
@@ -130,8 +130,10 @@ const ShowJob = () => {
               </InputAdornment>
             ),
           }}
+          style={{ width: '700px' }}
         />
-        <FormControl variant="outlined" fullWidth margin="normal">
+        <FormControl variant="outlined" margin="normal" style={{ minWidth: '250px' }}>
+        <InputLabel id="filter-label">Filter</InputLabel>
           <Select
             label="Filter by Status"
             value={selectedFilter}
