@@ -260,6 +260,7 @@ const JobForm = ({ onSubmit }) => {
                     <MenuItem value="LinkedIn">LinkedIn</MenuItem>
                     <MenuItem value="Indeed">Indeed</MenuItem>
                     <MenuItem value="Built-In">Built-In</MenuItem>
+                    <MenuItem value="HandShake">HandShake</MenuItem>
                   </Select>
                 </FormControl>
                 {jobPostingSourceError && (
