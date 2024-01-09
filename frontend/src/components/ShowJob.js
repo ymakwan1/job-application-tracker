@@ -16,10 +16,13 @@ import {
   MenuItem,
   InputAdornment,
   TextField,
+  InputLabel
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import axios from 'axios';
 
+
+// ... (your existing imports)
 
 const ShowJob = () => {
   const [jobs, setJobs] = useState([]);
@@ -27,6 +30,7 @@ const ShowJob = () => {
   const [deletedJobId, setDeletedJobId] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('all'); // 'all' is the default filter value
 
   useEffect(() => {
     axios
@@ -77,11 +81,27 @@ const ShowJob = () => {
 
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
-    const filtered = jobs.filter(
-      (job) =>
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    filterJobs(searchTerm, selectedFilter);
+  };
+
+  const handleFilterChange = (event) => {
+    const newFilter = event.target.value;
+    setSelectedFilter(newFilter);
+    filterJobs(searchTerm, newFilter);
+  };
+
+  const filterJobs = (searchTerm, filter) => {
+    const filtered = jobs.filter((job) => {
+      const titleMatch = job.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const companyMatch = job.company.toLowerCase().includes(searchTerm.toLowerCase());
+
+      if (filter === 'all') {
+        return titleMatch || companyMatch;
+      } else {
+        return (titleMatch || companyMatch) && job.application_status === filter;
+      }
+    });
+
     setFilteredJobs(filtered);
   };
 
@@ -102,7 +122,7 @@ const ShowJob = () => {
         elevation={3}
         style={{
           padding: '30px',
-          width: '1000px',
+          width: '1400px',
           maxWidth: '100%',
           margin: 'auto',
           backgroundColor: '#fff',
@@ -111,10 +131,16 @@ const ShowJob = () => {
         <Typography variant="h5" gutterBottom>
           List of Jobs Applied
         </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between" 
+          alignItems="center"
+          width="100%"
+          marginBottom="16px" 
+        >
         <TextField
           label="Search Jobs"
           variant="outlined"
-          fullWidth
           margin="normal"
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
@@ -125,7 +151,24 @@ const ShowJob = () => {
               </InputAdornment>
             ),
           }}
+          style={{ width: '700px' }}
         />
+          <FormControl variant="outlined" style={{ minWidth: '250px' }}>
+            <InputLabel id="filter-label">Filter</InputLabel>
+            <Select
+              labelId="filter-label"
+              id="filter"
+              value={selectedFilter}
+              onChange={(e) => handleFilterChange(e.target.value)}
+              label="Filter"
+            >
+              <MenuItem value="All">All</MenuItem>
+              <MenuItem value="Accepted">Accepted</MenuItem>
+              <MenuItem value="Rejected">Rejected</MenuItem>
+              
+            </Select>
+          </FormControl>
+        </Box>
         {filteredJobs.length === 0 ? (
           <Typography variant="body1">No jobs match the search criteria.</Typography>
         ) : (
