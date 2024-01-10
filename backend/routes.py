@@ -2,6 +2,7 @@
 from flask import jsonify, request
 from models import db, Job, ApplicationStatus
 from flask_cors import cross_origin
+from sqlalchemy.exc import IntegrityError
 
 def validate_job_data(data):
     required_keys = ['jobId', 'title', 'company', 'jobType', 'jobPostingUrl', 'dashboardUrl', 'jobPostingSource', 'dateApplied', 'referral', 'referrerName']
@@ -23,8 +24,14 @@ def init_routes(app):
             if not validate_job_data(data):
                 return jsonify({'error': 'Invalid job data provided'}), 400
 
+            job_id = data['jobId']
+
+            # Check if job_id already exists
+            if Job.query.filter_by(job_id=job_id).first():
+                return jsonify({'error': f'Job with job_id {job_id} already exists'}), 400
+
             new_job = Job(
-                job_id=data['jobId'],
+                job_id=job_id,
                 title=data['title'],
                 company=data['company'],
                 job_type=data['jobType'],
@@ -41,8 +48,12 @@ def init_routes(app):
             db.session.commit()
 
             return jsonify({'message': 'Job added successfully'}), 201
+        except IntegrityError as e:
+            db.session.rollback()
+            return jsonify({'error': f'IntegrityError: {str(e)}'}), 400
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
     
     @app.route('/api/companies', methods=['GET'])
     @cross_origin()
