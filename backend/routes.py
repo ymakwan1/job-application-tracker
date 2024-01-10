@@ -115,3 +115,16 @@ def init_routes(app):
                 return jsonify({'error': 'Job not found'}), 404
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+    @app.route('/api/analytics/', methods=['GET'])
+    @cross_origin()
+    def total_jobs_analytics():
+        try:
+            total_jobs = Job.query.count()
+            total_rejected_jobs = Job.query.filter_by(application_status=ApplicationStatus.REJECTED).count()
+            total_oa = Job.query.filter_by(application_status=ApplicationStatus.OA_RECEIVED).count()
+            total_tech_interview = Job.query.filter_by(application_status=ApplicationStatus.TECH_INTERVIEW).count()
+            total_accepted = Job.query.filter_by(application_status=ApplicationStatus.ACCEPTED).count();
+            return jsonify({'totalJobs': total_jobs, 'totalRejectedJobs': total_rejected_jobs, 'totalOAReceived': total_oa, 'totalTechInterviewReceived' : total_tech_interview, 'totalAcceptedJobs':total_accepted}), 200
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
