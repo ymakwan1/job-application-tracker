@@ -126,7 +126,7 @@ def init_routes(app):
                 return jsonify({'error': 'Job not found'}), 404
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
-        
+
     @app.route('/api/analytics/', methods=['GET'])
     @cross_origin()
     def total_jobs_analytics():
@@ -135,7 +135,31 @@ def init_routes(app):
             total_rejected_jobs = Job.query.filter_by(application_status=ApplicationStatus.REJECTED).count()
             total_oa = Job.query.filter_by(application_status=ApplicationStatus.OA_RECEIVED).count()
             total_tech_interview = Job.query.filter_by(application_status=ApplicationStatus.TECH_INTERVIEW).count()
-            total_accepted = Job.query.filter_by(application_status=ApplicationStatus.ACCEPTED).count();
-            return jsonify({'totalJobs': total_jobs, 'totalRejectedJobs': total_rejected_jobs, 'totalOAReceived': total_oa, 'totalTechInterviewReceived' : total_tech_interview, 'totalAcceptedJobs':total_accepted}), 200
+            total_accepted = Job.query.filter_by(application_status=ApplicationStatus.ACCEPTED).count()
+
+            daily_job_applications = (
+                db.session.query(
+                    db.func.date_trunc('day', Job.date_applied).label('date'),
+                    db.func.count().label('applications')
+                )
+                .group_by(db.func.date_trunc('day', Job.date_applied))
+                .all()
+            )
+
+            daily_job_applications_list = [
+                {
+                    'date': result.date.date().isoformat(),
+                    'applications': result.applications
+                } for result in daily_job_applications
+            ]
+
+            return jsonify({
+                'totalJobs': total_jobs,
+                'totalRejectedJobs': total_rejected_jobs,
+                'totalOAReceived': total_oa,
+                'totalTechInterviewReceived': total_tech_interview,
+                'totalAcceptedJobs': total_accepted,
+                'dailyJobApplications': daily_job_applications_list
+            }), 200
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
