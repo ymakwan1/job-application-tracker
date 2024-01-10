@@ -46,6 +46,11 @@ const JobForm = ({ onSubmit }) => {
   const [dateAppliedError, setDateAppliedError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const isURLValid = (url) => {
+    // Regular expression for a valid URL
+    const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
+    return urlRegex.test(url);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -102,6 +107,17 @@ const JobForm = ({ onSubmit }) => {
 
     if (referral && !referrerName.trim()) {
       setReferrerNameError('Referrer Name is required if referral is checked');
+      return;
+    }
+
+    if (!isURLValid(jobPostingUrl)) {
+      setJobPostingUrlError('Enter a valid Job Posting URL');
+      return;
+    }
+
+    
+    if (!isURLValid(dashboardUrl)) {
+      setDashboardUrlError('Enter a valid Dashboard URL');
       return;
     }
 
