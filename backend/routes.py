@@ -28,7 +28,7 @@ def init_routes(app):
 
             # Check if job_id already exists
             if Job.query.filter_by(job_id=job_id).first():
-                return jsonify({'error': f'Job with job_id {job_id} already exists'}), 400
+                return jsonify({'error': f'Job with Job ID : {job_id} already exists'}), 400
 
             new_job = Job(
                 job_id=job_id,
