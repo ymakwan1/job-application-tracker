@@ -18,10 +18,9 @@ const NavBar = ({ toggleTheme, isDarkTheme }) => {
           <Link to="/show-jobs" style={{ textDecoration: 'none', color: 'inherit', marginRight: '20px' }}>
             Show Jobs
           </Link>
-          <Link to="/update-job" style={{ textDecoration: 'none', color: 'inherit', marginRight: '20px' }}>
-            Update Job
+          <Link to="/analytics" style={{ textDecoration: 'none', color: 'inherit', marginRight: '20px' }}>
+            Analytics
           </Link>
-          {/* ... (other links) */}
           <FormControlLabel
             control={
               <Switch

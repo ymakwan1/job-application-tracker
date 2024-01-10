@@ -3,8 +3,8 @@ import { createTheme, ThemeProvider, CssBaseline } from '@mui/material';
 import { Route, Routes } from 'react-router-dom';
 import JobForm from './components/JobForm';
 import NavBar from './components/NavBar';
-import UpdateJob from './components/UpdateJob';
 import ShowJob from './components/ShowJob'
+import Analytics from './components/Analytics';
 const App = () => {
   const [jobs, setJobs] = useState([]);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -42,7 +42,7 @@ const App = () => {
         <div className="paper-container">
           <Routes>
             <Route path="/" element={<JobForm onSubmit={addJob} />} />
-            <Route path="/update-job" element={<UpdateJob />} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="/show-jobs" element={<ShowJob />} />
           </Routes>
         </div>
