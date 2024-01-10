@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, Button, Snackbar, FormControl, Select, MenuItem, InputAdornment, TextField,InputLabel } from '@mui/material';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  Typography, 
+  Box, 
+  Button, 
+  Snackbar, 
+  FormControl, 
+  Select, 
+  MenuItem, 
+  InputAdornment, 
+  TextField
+} from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import axios from 'axios';
 
 const ShowJob = () => {
   const [jobs, setJobs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState([]);
   const [deletedJobId, setDeletedJobId] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
 
   useEffect(() => {
     axios
@@ -17,7 +32,6 @@ const ShowJob = () => {
       .then((response) => {
         if (Array.isArray(response.data.jobs)) {
           setJobs(response.data.jobs);
-          setFilteredJobs(response.data.jobs);
         } else {
           console.error('Invalid data structure received:', response.data);
         }
@@ -48,7 +62,6 @@ const ShowJob = () => {
           .then((response) => {
             if (Array.isArray(response.data.jobs)) {
               setJobs(response.data.jobs);
-              setFilteredJobs(response.data.jobs);
             } else {
               console.error('Invalid data structure received:', response.data);
             }
@@ -60,29 +73,30 @@ const ShowJob = () => {
 
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
-    filterJobs(searchTerm, selectedFilter);
+  
+    if (searchTerm.trim() === '') {
+      // If the search term is empty, reset the jobs to the original list
+      axios
+        .get('http://127.0.0.1:5000/api/show_jobs')
+        .then((response) => {
+          if (Array.isArray(response.data.jobs)) {
+            setJobs(response.data.jobs);
+          } else {
+            console.error('Invalid data structure received:', response.data);
+          }
+        })
+        .catch((error) => console.error('Error fetching jobs:', error));
+    } else {
+      // Filter jobs based on the search term
+      const filteredJobs = jobs.filter((job) => 
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.job_type.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setJobs(filteredJobs);
+    }
   };
-
-  const handleFilterChange = (event) => {
-    const newFilter = event.target.value;
-    setSelectedFilter(newFilter);
-    filterJobs(searchTerm, newFilter);
-  };
-
-  const filterJobs = (searchTerm, filter) => {
-    const filtered = jobs.filter((job) => {
-      const titleMatch = job.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const companyMatch = job.company.toLowerCase().includes(searchTerm.toLowerCase());
-
-      if (filter === 'all') {
-        return titleMatch || companyMatch;
-      } else {
-        return (titleMatch || companyMatch) && job.application_status === filter;
-      }
-    });
-
-    setFilteredJobs(filtered);
-  };
+  
 
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -110,12 +124,6 @@ const ShowJob = () => {
         <Typography variant="h5" gutterBottom>
           List of Jobs Applied
         </Typography>
-        <Box
-          display="flex"
-          justifyContent="space-between" 
-          alignItems="center"
-          width="100%"
-        >
         <TextField
           label="Search Jobs"
           variant="outlined"
@@ -130,26 +138,14 @@ const ShowJob = () => {
               </InputAdornment>
             ),
           }}
-          style={{ width: '700px' }}
+          style={{ marginBottom: '20px' }}
         />
-        <FormControl variant="outlined" margin="normal" style={{ minWidth: '250px' }}>
-        <InputLabel id="filter-label">Filter</InputLabel>
-          <Select
-            label="Filter by Status"
-            value={selectedFilter}
-            onChange={handleFilterChange}
-          >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="Applied">Applied</MenuItem>
-            <MenuItem value="OA Received">OA Received</MenuItem>
-            <MenuItem value="Tech Interview">Tech Interview</MenuItem>
-            <MenuItem value="Rejected">Rejected</MenuItem>
-            <MenuItem value="Accepted">Accepted</MenuItem>
-          </Select>
-        </FormControl>
-        </Box>
-        {filteredJobs.length === 0 ? (
-          <Typography variant="body1">No jobs match the search criteria.</Typography>
+        {jobs.length === 0 ? (
+          <Typography variant="body1">
+          {searchTerm.trim() === ''
+            ? 'No jobs available.'
+            : 'No jobs match the search criteria.'}
+          </Typography>
         ) : (
           <TableContainer component={Paper}>
             <Table>
@@ -167,7 +163,7 @@ const ShowJob = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredJobs.map((job) => (
+                {jobs.map((job) => (
                   <TableRow key={job.job_id}>
                     <TableCell>{job.title}</TableCell>
                     <TableCell>{job.company}</TableCell>
