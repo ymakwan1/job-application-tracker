@@ -161,6 +161,16 @@ const JobForm = ({ onSubmit }) => {
       .catch((error) => {
         setErrorMessage(error.response.data.error);
         setErrorSnackbar(true);
+        setJobId('');
+        setTitle('');
+        setCompany('');
+        setJobType('');
+        setJobPostingUrl('');
+        setDashboardUrl('');
+        setJobPostingSource('');
+        setDateApplied(null);
+        setReferral(false);
+        setReferrerName('');
       });
   };
 
