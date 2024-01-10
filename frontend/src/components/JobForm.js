@@ -45,11 +45,17 @@ const JobForm = ({ onSubmit }) => {
   const [referrerNameError, setReferrerNameError] = useState('');
   const [dateAppliedError, setDateAppliedError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errorSnackbar, setErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const isURLValid = (url) => {
     // Regular expression for a valid URL
     const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
     return urlRegex.test(url);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setErrorSnackbar(false);
   };
 
   const handleSubmit = (e) => {
@@ -115,7 +121,6 @@ const JobForm = ({ onSubmit }) => {
       return;
     }
 
-    
     if (!isURLValid(dashboardUrl)) {
       setDashboardUrlError('Enter a valid Dashboard URL');
       return;
@@ -153,7 +158,10 @@ const JobForm = ({ onSubmit }) => {
           setShowSuccess(false);
         }, 5000);
       })
-      .catch((error) => console.error('Error adding job:', error));
+      .catch((error) => {
+        setErrorMessage(error.response.data.error);
+        setErrorSnackbar(true);
+      });
   };
 
   return (
@@ -332,19 +340,30 @@ const JobForm = ({ onSubmit }) => {
                   Add Job
                 </Button>
               </Grid>
-              <Grid item xs={12}>
-                <Snackbar
-                  open={showSuccess}
-                  autoHideDuration={5000}
-                  onClose={() => setShowSuccess(false)}
-                >
-                  <CustomAlert onClose={() => setShowSuccess(false)} severity="success">
-                    Job added successfully!
-                  </CustomAlert>
-                </Snackbar>
-              </Grid>
             </Grid>
           </form>
+
+          {/* Success Snackbar */}
+          <Snackbar
+            open={showSuccess}
+            autoHideDuration={5000}
+            onClose={() => setShowSuccess(false)}
+          >
+            <CustomAlert onClose={() => setShowSuccess(false)} severity="success">
+              Job added successfully!
+            </CustomAlert>
+          </Snackbar>
+
+          {/* Error Snackbar */}
+          <Snackbar
+            open={errorSnackbar}
+            autoHideDuration={5000}
+            onClose={handleCloseErrorSnackbar}
+          >
+            <MuiAlert onClose={handleCloseErrorSnackbar} severity="error" elevation={6} variant="filled">
+              {errorMessage}
+            </MuiAlert>
+          </Snackbar>
         </Paper>
       </Box>
     </LocalizationProvider>
