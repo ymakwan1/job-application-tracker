@@ -36,7 +36,7 @@ const Analytics = () => {
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:5000/api/analytics")
+      .get("http://localhost:5001/api/analytics")
       .then((response) => {
         setTotalJobs(response.data.totalJobs);
         setTotalRejectedJobs(response.data.totalRejectedJobs);

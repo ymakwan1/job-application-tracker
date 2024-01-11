@@ -28,7 +28,7 @@ const ShowJob = () => {
 
   useEffect(() => {
     axios
-      .get('http://127.0.0.1:5000/api/show_jobs')
+      .get('http://localhost:5001/api/show_jobs')
       .then((response) => {
         if (Array.isArray(response.data.jobs)) {
           setJobs(response.data.jobs);
@@ -41,7 +41,7 @@ const ShowJob = () => {
 
   const handleDelete = (jobId) => {
     axios
-      .delete(`http://127.0.0.1:5000/api/delete_job/${jobId}`)
+      .delete(`http://localhost:5001/api/delete_job/${jobId}`)
       .then(() => {
         setDeletedJobId(jobId);
         setShowSuccess(true);
