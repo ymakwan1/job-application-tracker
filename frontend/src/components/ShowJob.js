@@ -55,10 +55,10 @@ const ShowJob = () => {
 
   const handleStatusChange = (jobId, newStatus) => {
     axios
-      .put(`http://127.0.0.1:5000/api/update_status/${jobId}`, { newStatus })
+      .put(`http://localhost:5001/api/update_status/${jobId}`, { newStatus })
       .then(() => {
         axios
-          .get('http://127.0.0.1:5000/api/show_jobs')
+          .get('http://localhost:5001/api/show_jobs')
           .then((response) => {
             if (Array.isArray(response.data.jobs)) {
               setJobs(response.data.jobs);
@@ -77,7 +77,7 @@ const ShowJob = () => {
     if (searchTerm.trim() === '') {
       // If the search term is empty, reset the jobs to the original list
       axios
-        .get('http://127.0.0.1:5000/api/show_jobs')
+        .get('http://localhost:5001/api/show_jobs')
         .then((response) => {
           if (Array.isArray(response.data.jobs)) {
             setJobs(response.data.jobs);
