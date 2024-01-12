@@ -117,14 +117,19 @@ const Analytics = () => {
             },
           ]}
           layout={{
-            width: 900, // Set the width of the graph
+            width: 900, 
             height: 400,
             title: "Daily Job Applications",
             xaxis: { title: "Date", type: "category" },
-            yaxis: { title: "Applications" },
-            margin: { t: 50, l: "auto", r: "auto", b: 50 }, // Center the graph by setting left and right margins to "auto"
-            bargap: 0.1, // Adjust the gap between bars
-            bargroupgap: 0.2, // Adjust the gap between bar groups
+            yaxis: {
+              title: "Applications",
+              tickmode: "linear",
+              tick0: 0, 
+              dtick: 1, 
+            },
+            margin: { t: 50, l: "auto", r: "auto", b: 50 },
+            bargap: 0.1, 
+            bargroupgap: 0.2,
           }}
         />
       </Paper>

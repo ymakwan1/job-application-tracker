@@ -31,10 +31,8 @@ const UpdateJob = ({ jobData, onUpdate }) => {
   const [referral, setReferral] = useState(jobData.referral);
   const [referrerName, setReferrerName] = useState(jobData.referrerName || '');
   const [companyOptions, setCompanyOptions] = useState([]);
-  // Add similar state variables for error handling as in the JobForm component
 
   useEffect(() => {
-    // Fetch companies and set options in the state
     axios
       .get('http://localhost:5000/api/companies')
       .then((response) => setCompanyOptions(response.data))
@@ -43,9 +41,6 @@ const UpdateJob = ({ jobData, onUpdate }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Similar validation and submission logic as in the JobForm component
-
-    // Use axios.put for updating the job data
     axios
       .put(`http://localhost:5000/api/jobs/${jobId}`, {
         jobId,
