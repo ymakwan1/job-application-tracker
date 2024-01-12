@@ -245,8 +245,19 @@ const JobForm = ({ onSubmit }) => {
                     <MenuItem value="">Select</MenuItem>
                     <MenuItem value="SWE">SWE</MenuItem>
                     <MenuItem value="SDE">SDE</MenuItem>
+                    <MenuItem value="FullStackDeveloper">Full Stack Developer</MenuItem>
+                    <MenuItem value="FrontEndDeveloper">Frontend Developer</MenuItem>
+                    <MenuItem value="BackEndDeveloper">Backend Developer</MenuItem>
+                    <MenuItem value="Cloud">Cloud</MenuItem>
                     <MenuItem value="Data Engineering">Data Engineering</MenuItem>
+                    <MenuItem value="DevOps">DevOps Engineer</MenuItem>
                     <MenuItem value="Automation">Automation</MenuItem>
+                    <MenuItem value="MobileAppDeveloper">Mobile App Developer</MenuItem>
+                    <MenuItem value="DatabaseAdministrator">Database Administrator</MenuItem>
+                    <MenuItem value="MLOps">ML Ops</MenuItem>
+                    <MenuItem value="FrontEndDeveloper">Front End Developer</MenuItem>
+                    <MenuItem value="AIEngineer">AI Engineer</MenuItem>
+                    <MenuItem value="MLEngineer">ML Engineer</MenuItem>
                   </Select>
                 </FormControl>
                 {jobTypeError && (
