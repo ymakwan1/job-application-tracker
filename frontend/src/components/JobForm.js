@@ -244,6 +244,14 @@ const JobForm = ({ onSubmit }) => {
                     onChange={(e) => setJobType(e.target.value)}
                     label="Job Type"
                     error={!!jobTypeError}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200, // Set the maximum height for the dropdown menu
+                          overflowY: 'auto', // Enable vertical scrollbar if needed
+                        },
+                      },
+                    }}
                   >
                     <MenuItem value="">Select</MenuItem>
                     <MenuItem value="SWE">SWE</MenuItem>
@@ -302,12 +310,26 @@ const JobForm = ({ onSubmit }) => {
                     onChange={(e) => setJobPostingSource(e.target.value)}
                     label="Job Posting Source"
                     error={!!jobPostingSourceError}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200, 
+                          overflowY: 'auto', 
+                        },
+                      },
+                    }}
                   >
                     <MenuItem value="">Select</MenuItem>
+                    <MenuItem value="Company Website">Company Website</MenuItem>
                     <MenuItem value="LinkedIn">LinkedIn</MenuItem>
                     <MenuItem value="Indeed">Indeed</MenuItem>
                     <MenuItem value="Built-In">Built-In</MenuItem>
                     <MenuItem value="HandShake">HandShake</MenuItem>
+                    <MenuItem value="Monster">Monster</MenuItem>
+                    <MenuItem value="CareerBuilder">CareerBuilder</MenuItem>
+                    <MenuItem value="SimplyHired">SimplyHired</MenuItem>
+                    <MenuItem value="Dice">Dice</MenuItem>
+                    <MenuItem value="ZipRecruiter">ZipRecruiter</MenuItem>
                   </Select>
                 </FormControl>
                 {jobPostingSourceError && (
