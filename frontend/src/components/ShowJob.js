@@ -15,33 +15,28 @@ import {
   Select, 
   MenuItem, 
   InputAdornment, 
-  TextField
+  TextField,
+  useTheme,
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
-import axios from 'axios';
-
+import apiService from '../apiService';
 const ShowJob = () => {
+  const theme = useTheme(); 
   const [jobs, setJobs] = useState([]);
   const [deletedJobId, setDeletedJobId] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5001/api/show_jobs')
+    apiService.get('/show_jobs')
       .then((response) => {
-        if (Array.isArray(response.data.jobs)) {
-          setJobs(response.data.jobs);
-        } else {
-          console.error('Invalid data structure received:', response.data);
-        }
+        setJobs(response.data.jobs);
       })
       .catch((error) => console.error('Error fetching jobs:', error));
   }, [deletedJobId]);
 
   const handleDelete = (jobId) => {
-    axios
-      .delete(`http://localhost:5001/api/delete_job/${jobId}`)
+    apiService.delete(`/delete_job/${jobId}`)
       .then(() => {
         setDeletedJobId(jobId);
         setShowSuccess(true);
@@ -54,17 +49,11 @@ const ShowJob = () => {
   };
 
   const handleStatusChange = (jobId, newStatus) => {
-    axios
-      .put(`http://localhost:5001/api/update_status/${jobId}`, { newStatus })
+    apiService.put(`/update_status/${jobId}`, { newStatus })
       .then(() => {
-        axios
-          .get('http://localhost:5001/api/show_jobs')
+        apiService.get('/show_jobs')
           .then((response) => {
-            if (Array.isArray(response.data.jobs)) {
-              setJobs(response.data.jobs);
-            } else {
-              console.error('Invalid data structure received:', response.data);
-            }
+            setJobs(response.data.jobs);
           })
           .catch((error) => console.error('Error fetching jobs:', error));
       })
@@ -76,14 +65,9 @@ const ShowJob = () => {
   
     if (searchTerm.trim() === '') {
       // If the search term is empty, reset the jobs to the original list
-      axios
-        .get('http://localhost:5001/api/show_jobs')
+      apiService.get('/show_jobs')
         .then((response) => {
-          if (Array.isArray(response.data.jobs)) {
-            setJobs(response.data.jobs);
-          } else {
-            console.error('Invalid data structure received:', response.data);
-          }
+          setJobs(response.data.jobs);
         })
         .catch((error) => console.error('Error fetching jobs:', error));
     } else {
@@ -109,7 +93,7 @@ const ShowJob = () => {
       alignItems="center"
       minHeight="100vh"
       width="100%"
-      style={{ backgroundColor: '#f0f0f0' }}
+      style={{ backgroundColor: theme.palette.background.default }}
     >
       <Paper
         elevation={3}
@@ -118,7 +102,7 @@ const ShowJob = () => {
           width: '1400px',
           maxWidth: '100%',
           margin: 'auto',
-          backgroundColor: '#fff',
+          backgroundColor: theme.palette.background.paper,
         }}
       >
         <Typography variant="h5" gutterBottom>
@@ -134,49 +118,49 @@ const ShowJob = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <i className="fas fa-search"></i>
+                <i className="fas fa-search" style={{ color: theme.palette.text.secondary }}></i>
               </InputAdornment>
             ),
           }}
           style={{ marginBottom: '20px' }}
         />
         {jobs.length === 0 ? (
-          <Typography variant="body1">
-          {searchTerm.trim() === ''
-            ? 'No jobs available.'
-            : 'No jobs match the search criteria.'}
+          <Typography variant="body1" style={{ color: theme.palette.text.primary }}>
+            {searchTerm.trim() === ''
+              ? 'No jobs available.'
+              : 'No jobs match the search criteria.'}
           </Typography>
         ) : (
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Company</TableCell>
-                  <TableCell>Job Type</TableCell>
-                  <TableCell>Applied On</TableCell>
-                  <TableCell>Source</TableCell>
-                  <TableCell>Dashboard</TableCell>
-                  <TableCell>Referral</TableCell>
-                  <TableCell>Application Status</TableCell>
-                  <TableCell>Action</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Title</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Company</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Job Type</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Applied On</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Source</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Dashboard</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Application Status</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {jobs.map((job) => (
                   <TableRow key={job.job_id}>
-                    <TableCell>{job.title}</TableCell>
-                    <TableCell>{job.company}</TableCell>
-                    <TableCell>{job.job_type}</TableCell>
-                    <TableCell>{new Date(job.date_applied).toLocaleDateString()}</TableCell>
-                    <TableCell>{job.job_posting_source}</TableCell>
-                    <TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.title}</TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.company}</TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.job_type}</TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{new Date(job.date_applied).toLocaleDateString()}</TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.job_posting_source}</TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>
                       <a href={job.dashboard_url} target="_blank" rel="noopener noreferrer">
                         Dashboard
                       </a>
                     </TableCell>
-                    <TableCell>{job.referral ? 'Yes' : 'No'}</TableCell>
-                    <TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.referral ? 'Yes' : 'No'}</TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>
                       <FormControl variant="outlined">
                         <Select
                           labelId={`status-label-${job.job_id}`}
@@ -192,7 +176,7 @@ const ShowJob = () => {
                         </Select>
                       </FormControl>
                     </TableCell>
-                    <TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>
                       <Button
                         variant="outlined"
                         color="secondary"

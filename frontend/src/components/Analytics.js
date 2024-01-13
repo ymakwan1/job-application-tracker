@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Paper, Box } from "@mui/material";
-import axios from "axios";
+import { Typography, Paper, Box, useTheme } from "@mui/material";
 import Plot from "react-plotly.js";
+import apiService from "../apiService";
 
 const Counter = ({ label, value }) => {
   const [count, setCount] = useState(0);
@@ -27,6 +27,7 @@ const Counter = ({ label, value }) => {
 };
 
 const Analytics = () => {
+  const theme = useTheme();
   const [totalJobs, setTotalJobs] = useState(0);
   const [totalRejectedJobs, setTotalRejectedJobs] = useState(0);
   const [totalAcceptedJobs, setTotalAcceptedJobs] = useState(0);
@@ -35,8 +36,7 @@ const Analytics = () => {
   const [dailyJobApplications, setDailyJobApplications] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5001/api/analytics")
+    apiService.get("/analytics")
       .then((response) => {
         setTotalJobs(response.data.totalJobs);
         setTotalRejectedJobs(response.data.totalRejectedJobs);
@@ -59,7 +59,8 @@ const Analytics = () => {
       flexDirection="column"
       height="100vh"
       width="100%"
-      bgcolor="#f0f0f0"
+      bgcolor={theme.palette.background.default}
+      // bgcolor="#f0f0f0"
     >
       <Paper
         elevation={3}
@@ -68,10 +69,12 @@ const Analytics = () => {
           width: "600px",
           maxWidth: "100%",
           margin: "auto",
-          backgroundColor: "#fff",
+          backgroundColor: theme.palette.background.paper, 
+          // backgroundColor: "#fff",
           borderRadius: "8px",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          marginBottom: "20px", // Add margin to separate the two Paper components
+          //boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          boxShadow: theme.shadows[5],
+          marginBottom: "20px", 
         }}
       >
         <Typography variant="h5" gutterBottom>
@@ -96,12 +99,14 @@ const Analytics = () => {
         elevation={3}
         style={{
           padding: "30px",
-          width: "1000px", // Set the width to 1000px
+          width: "1000px", 
           maxWidth: "100%",
           margin: "auto",
-          backgroundColor: "#fff",
+          // backgroundColor: "#fff",
+          backgroundColor: theme.palette.background.paper,
           borderRadius: "8px",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          // boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          boxShadow: theme.shadows[5],
         }}
       >
         <Typography variant="h5" gutterBottom>

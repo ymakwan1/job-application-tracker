@@ -1,4 +1,3 @@
-// src/components/JobForm.js
 import React, { useState } from 'react';
 import {
   TextField,
@@ -13,18 +12,20 @@ import {
   FormControlLabel,
   Box,
   Snackbar,
+  useTheme
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import MuiAlert from '@mui/material/Alert';
-import axios from 'axios';
+import apiService from '../apiService';
 
 const CustomAlert = React.forwardRef(function CustomAlert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
 const JobForm = ({ onSubmit }) => {
+  const theme = useTheme();
   const [jobId, setJobId] = useState('');
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState('');
@@ -126,8 +127,7 @@ const JobForm = ({ onSubmit }) => {
       return;
     }
 
-    axios
-      .post('http://localhost:5001/api/jobs', {
+    apiService.post('/jobs', {
         jobId,
         title,
         company,
@@ -182,7 +182,8 @@ const JobForm = ({ onSubmit }) => {
         alignItems="center"
         minHeight="100vh"
         width="100%"
-        style={{ backgroundColor: '#f0f0f0' }}
+        // style={{ backgroundColor: '#f0f0f0' }}
+        style={{ backgroundColor: theme.palette.background.default }}
       >
         <Paper
           elevation={3}
@@ -191,6 +192,8 @@ const JobForm = ({ onSubmit }) => {
             width: '800px',
             maxWidth: '100%',
             margin: 'auto',
+            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.background.paper,
           }}
         >
           <form onSubmit={handleSubmit}>
@@ -245,9 +248,9 @@ const JobForm = ({ onSubmit }) => {
                     <MenuItem value="">Select</MenuItem>
                     <MenuItem value="SWE">SWE</MenuItem>
                     <MenuItem value="SDE">SDE</MenuItem>
-                    <MenuItem value="FullStackDeveloper">Full Stack Developer</MenuItem>
-                    <MenuItem value="FrontEndDeveloper">Frontend Developer</MenuItem>
-                    <MenuItem value="BackEndDeveloper">Backend Developer</MenuItem>
+                    <MenuItem value="FullStack">Full Stack</MenuItem>
+                    <MenuItem value="FrontEnd">Frontend</MenuItem>
+                    <MenuItem value="BackEndDeveloper">Backend</MenuItem>
                     <MenuItem value="Cloud">Cloud</MenuItem>
                     <MenuItem value="Data Engineering">Data Engineering</MenuItem>
                     <MenuItem value="DevOps">DevOps Engineer</MenuItem>
@@ -255,7 +258,6 @@ const JobForm = ({ onSubmit }) => {
                     <MenuItem value="MobileAppDeveloper">Mobile App Developer</MenuItem>
                     <MenuItem value="DatabaseAdministrator">Database Administrator</MenuItem>
                     <MenuItem value="MLOps">ML Ops</MenuItem>
-                    <MenuItem value="FrontEndDeveloper">Front End Developer</MenuItem>
                     <MenuItem value="AIEngineer">AI Engineer</MenuItem>
                     <MenuItem value="MLEngineer">ML Engineer</MenuItem>
                   </Select>
@@ -390,5 +392,4 @@ const JobForm = ({ onSubmit }) => {
     </LocalizationProvider>
   );
 };
-
 export default JobForm;
