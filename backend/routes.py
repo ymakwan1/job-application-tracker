@@ -163,3 +163,29 @@ def init_routes(app):
             }), 200
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+    @app.route('/api/job_details/<string:job_id>', methods=['GET'])
+    @cross_origin()
+    def get_job_details(job_id):
+        try:
+            job = Job.query.filter_by(job_id=job_id).first()
+
+            if job:
+                job_details = {
+                    'job_id': job.job_id,
+                    'title': job.title,
+                    'company': job.company,
+                    'job_type': job.job_type,
+                    'job_posting_url': job.job_posting_url,
+                    'dashboard_url': job.dashboard_url,
+                    'job_posting_source': job.job_posting_source,
+                    'date_applied': job.date_applied.isoformat(),
+                    'referral': job.referral,
+                    'referrer_name': job.referrer_name,
+                    'application_status': job.application_status.value
+                }
+                return jsonify({'jobDetails': job_details}), 200
+            else:
+                return jsonify({'error': 'Job not found'}), 404
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
