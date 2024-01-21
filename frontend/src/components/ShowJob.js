@@ -20,6 +20,8 @@ import {
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import apiService from '../apiService';
+import { Link } from 'react-router-dom';
+
 const ShowJob = () => {
   const theme = useTheme(); 
   const [jobs, setJobs] = useState([]);
@@ -135,6 +137,7 @@ const ShowJob = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Job ID</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Title</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Company</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Job Type</TableCell>
@@ -149,6 +152,11 @@ const ShowJob = () => {
               <TableBody>
                 {jobs.map((job) => (
                   <TableRow key={job.job_id}>
+                    <TableCell style={{ color: theme.palette.text.primary }}>
+                      <Link to={`/job_details/${job.job_id}`} style={{ textDecoration: 'none' }}>
+                        {job.job_id}
+                      </Link>
+                    </TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.title}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.company}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.job_type}</TableCell>

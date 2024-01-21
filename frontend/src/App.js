@@ -5,6 +5,7 @@ import JobForm from './components/JobForm';
 import NavBar from './components/NavBar';
 import ShowJob from './components/ShowJob'
 import Analytics from './components/Analytics';
+import JobDetails from './components/JobDetails';
 const App = () => {
   const [jobs, setJobs] = useState([]);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="/" element={<JobForm onSubmit={addJob} />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/show-jobs" element={<ShowJob />} />
+            <Route path="/job_details/:job_id" element={<JobDetails />} />
           </Routes>
         </div>
       </div>
