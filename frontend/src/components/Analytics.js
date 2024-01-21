@@ -43,8 +43,9 @@ const Analytics = () => {
         setTotalAcceptedJobs(response.data.totalAcceptedJobs);
         setTotalOAReceived(response.data.totalOAReceived);
         setTotalTechInterviewReceived(response.data.totalTechInterviewReceived);
-        setDailyJobApplications(response.data.dailyJobApplications || []);
-        console.log(response.data.dailyJobApplications)
+        setDailyJobApplications(response.data.dailyJobApplications.sort((a, b) => {
+          return new Date(a.date) - new Date(b.date);
+        }));
       })
       .catch((error) => {
         console.error("Error fetching analytics data:", error);
@@ -112,7 +113,8 @@ const Analytics = () => {
         <Typography variant="h5" gutterBottom>
           Daily Job Applications
         </Typography>
-        <Plot
+        {dailyJobApplications.length > 0 ? (
+          <Plot
           data={[
             {
               x: dailyJobApplications.map((entry) => entry.date),
@@ -133,10 +135,15 @@ const Analytics = () => {
               dtick: 1, 
             },
             margin: { t: 50, l: "auto", r: "auto", b: 50 },
-            bargap: 0.1, 
-            bargroupgap: 0.2,
+            bargap: 0, 
+            bargroupgap: 0.1,
           }}
         />
+        ) : (
+          <Typography variant="body1" color="textSecondary">
+            No data available for daily job applications.
+          </Typography>
+        )}     
       </Paper>
     </Box>
   );
