@@ -18,6 +18,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import MuiAlert from '@mui/material/Alert';
+import dayjs from 'dayjs';
 import apiService from '../apiService';
 import { jobTitles, platformTypes } from '../constants';
 
@@ -36,7 +37,7 @@ const JobForm = ({ onSubmit }) => {
     jobPostingUrl : '',
     dashboardUrl : '',
     jobPostingSource : '',
-    dateApplied : null,
+    dateApplied : dayjs(),
     referral : false,
     referrerName : '',
   });
@@ -339,14 +340,14 @@ const JobForm = ({ onSubmit }) => {
                   <DatePicker
                     value={formState.dateApplied}
                     onChange={(newValue) => handleInputChange('dateApplied', newValue)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
+                    textField={(props) => 
+                      <TextField 
+                        {...props} 
                         variant="outlined"
                         error={!!dateAppliedError}
-                        helperText={dateAppliedError}
+                        helperText={dateAppliedError}  
                       />
-                    )}
+                    }
                   />
                 </FormControl>
               </Grid>
