@@ -19,6 +19,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import MuiAlert from '@mui/material/Alert';
 import apiService from '../apiService';
+import { jobTitles, platformTypes } from '../constants';
 
 const CustomAlert = React.forwardRef(function CustomAlert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -264,21 +265,11 @@ const JobForm = ({ onSubmit }) => {
                       },
                     }}
                   >
-                    <MenuItem value="">Select</MenuItem>
-                    <MenuItem value="SWE">SWE</MenuItem>
-                    <MenuItem value="SDE">SDE</MenuItem>
-                    <MenuItem value="FullStack">Full Stack</MenuItem>
-                    <MenuItem value="FrontEnd">Frontend</MenuItem>
-                    <MenuItem value="BackEndDeveloper">Backend</MenuItem>
-                    <MenuItem value="Cloud">Cloud</MenuItem>
-                    <MenuItem value="Data Engineering">Data Engineering</MenuItem>
-                    <MenuItem value="DevOps">DevOps Engineer</MenuItem>
-                    <MenuItem value="Automation">Automation</MenuItem>
-                    <MenuItem value="MobileAppDeveloper">Mobile App Developer</MenuItem>
-                    <MenuItem value="DatabaseAdministrator">Database Administrator</MenuItem>
-                    <MenuItem value="MLOps">ML Ops</MenuItem>
-                    <MenuItem value="AIEngineer">AI Engineer</MenuItem>
-                    <MenuItem value="MLEngineer">ML Engineer</MenuItem>
+                    {jobTitles.map((title, index) =>
+                      <MenuItem key={index} value={title}>
+                        {title}
+                      </MenuItem>
+                    )};
                   </Select>
                 </FormControl>
                 {jobTypeError && (
@@ -330,17 +321,11 @@ const JobForm = ({ onSubmit }) => {
                       },
                     }}
                   >
-                    <MenuItem value="">Select</MenuItem>
-                    <MenuItem value="Company Website">Company Website</MenuItem>
-                    <MenuItem value="LinkedIn">LinkedIn</MenuItem>
-                    <MenuItem value="Indeed">Indeed</MenuItem>
-                    <MenuItem value="Built-In">Built-In</MenuItem>
-                    <MenuItem value="HandShake">HandShake</MenuItem>
-                    <MenuItem value="Monster">Monster</MenuItem>
-                    <MenuItem value="CareerBuilder">CareerBuilder</MenuItem>
-                    <MenuItem value="SimplyHired">SimplyHired</MenuItem>
-                    <MenuItem value="Dice">Dice</MenuItem>
-                    <MenuItem value="ZipRecruiter">ZipRecruiter</MenuItem>
+                    {platformTypes.map((title, index) =>
+                      <MenuItem key={index} value={title}>
+                        {title}
+                      </MenuItem>
+                    )};
                   </Select>
                 </FormControl>
                 {jobPostingSourceError && (
