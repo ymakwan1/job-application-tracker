@@ -61,7 +61,6 @@ const Analytics = () => {
       height="100vh"
       width="100%"
       bgcolor={theme.palette.background.default}
-      // bgcolor="#f0f0f0"
     >
       <Paper
         elevation={3}
@@ -71,9 +70,7 @@ const Analytics = () => {
           maxWidth: "100%",
           margin: "auto",
           backgroundColor: theme.palette.background.paper, 
-          // backgroundColor: "#fff",
           borderRadius: "8px",
-          //boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
           boxShadow: theme.shadows[5],
           marginBottom: "20px", 
         }}
@@ -103,10 +100,8 @@ const Analytics = () => {
           width: "1000px", 
           maxWidth: "100%",
           margin: "auto",
-          // backgroundColor: "#fff",
           backgroundColor: theme.palette.background.paper,
           borderRadius: "8px",
-          // boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
           boxShadow: theme.shadows[5],
         }}
       >
