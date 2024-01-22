@@ -73,13 +73,9 @@ const JobForm = ({ onSubmit }) => {
     return urlRegex.test(url);
   };
 
-  // const handleCloseErrorSnackbar = () => {
-  //   setErrorSnackbar(false);
-  // };
-
-  const handleSubmit = useCallback((e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-
+  
     setJobIdError('');
     setTitleError('');
     setCompanyError('');
@@ -89,104 +85,108 @@ const JobForm = ({ onSubmit }) => {
     setJobPostingSourceError('');
     setReferrerNameError('');
     setDateAppliedError('');
-
-    if (!formState.jobId.trim()) {
-      setJobIdError('Job ID is required');
-      return;
-    }
-
-    if (!formState.title.trim()) {
-      setTitleError('Job Title is required');
-      return;
-    }
-
-    if (!formState.company.trim()) {
-      setCompanyError('Company Name is required');
-      return;
-    }
-
-    if (!formState.jobType) {
-      setJobTypeError('Job Type is required');
-      return;
-    }
-
-    if (!formState.jobPostingUrl.trim()) {
-      setJobPostingUrlError('Job Posting URL is required');
-      return;
-    }
-
-    if (!formState.dashboardUrl.trim()) {
-      setDashboardUrlError('Dashboard URL is required');
-      return;
-    }
-
-    if (!formState.jobPostingSource) {
-      setJobPostingSourceError('Job Posting Source is required');
-      return;
-    }
-
-    if (!formState.dateApplied) {
-      setDateAppliedError('Date Applied is required');
-      return;
-    }
-
-    if (formState.referral && !formState.referrerName.trim()) {
-      setReferrerNameError('Referrer Name is required if referral is checked');
-      return;
-    }
-
-    if (!isURLValid(formState.jobPostingUrl)) {
-      setJobPostingUrlError('Enter a valid Job Posting URL');
-      return;
-    }
-
-    if (!isURLValid(formState.dashboardUrl)) {
-      setDashboardUrlError('Enter a valid Dashboard URL');
-      return;
-    }
-
-    apiService.post('/jobs', {
+  
+    try {
+      if (!formState.jobId.trim()) {
+        setJobIdError('Job ID is required');
+        return;
+      }
+  
+      if (!formState.title.trim()) {
+        setTitleError('Job Title is required');
+        return;
+      }
+  
+      if (!formState.company.trim()) {
+        setCompanyError('Company Name is required');
+        return;
+      }
+  
+      if (!formState.jobType) {
+        setJobTypeError('Job Type is required');
+        return;
+      }
+  
+      if (!formState.jobPostingUrl.trim()) {
+        setJobPostingUrlError('Job Posting URL is required');
+        return;
+      }
+  
+      if (!formState.dashboardUrl.trim()) {
+        setDashboardUrlError('Dashboard URL is required');
+        return;
+      }
+  
+      if (!formState.jobPostingSource) {
+        setJobPostingSourceError('Job Posting Source is required');
+        return;
+      }
+  
+      if (!formState.dateApplied) {
+        setDateAppliedError('Date Applied is required');
+        return;
+      }
+  
+      if (formState.referral && !formState.referrerName.trim()) {
+        setReferrerNameError('Referrer Name is required if referral is checked');
+        return;
+      }
+  
+      if (!isURLValid(formState.jobPostingUrl)) {
+        setJobPostingUrlError('Enter a valid Job Posting URL');
+        return;
+      }
+  
+      if (!isURLValid(formState.dashboardUrl)) {
+        setDashboardUrlError('Enter a valid Dashboard URL');
+        return;
+      }
+  
+      const response = await apiService.post('/jobs', {
         ...formState,
         referrerName: formState.referral ? formState.referrerName : null,
-      })
-      .then((response) => {
-        onSubmit(response.data);
-        setFormState({
-          jobId: '',
-          title: '',
-          company: '',
-          jobType: '',
-          jobPostingUrl: '',
-          dashboardUrl: '',
-          jobPostingSource: '',
-          dateApplied: null,
-          referral: false,
-          referrerName: '',
-        });
-        setShowSuccess(true);
-
-        // Reset success message after 5 seconds
-        setTimeout(() => {
-          setShowSuccess(false);
-        }, 5000);
-      })
-      .catch((error) => {
-        setErrorMessage(error.response.data.error);
-        setErrorSnackbar(true);
-        setFormState({
-          jobId: '',
-          title: '',
-          company: '',
-          jobType: '',
-          jobPostingUrl: '',
-          dashboardUrl: '',
-          jobPostingSource: '',
-          dateApplied: null,
-          referral: false,
-          referrerName: '',
-        });
       });
+  
+      onSubmit(response.data);
+  
+      setFormState({
+        jobId: '',
+        title: '',
+        company: '',
+        jobType: '',
+        jobPostingUrl: '',
+        dashboardUrl: '',
+        jobPostingSource: '',
+        dateApplied: dayjs(),
+        referral: false,
+        referrerName: '',
+      });
+  
+      setShowSuccess(true);
+  
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 5000);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.error || 'An error occurred');
+      setErrorSnackbar(true);
+  
+      setFormState({
+        jobId: '',
+        title: '',
+        company: '',
+        jobType: '',
+        jobPostingUrl: '',
+        dashboardUrl: '',
+        jobPostingSource: '',
+        dateApplied: null,
+        referral: false,
+        referrerName: '',
+      });
+    }
   }, [formState, onSubmit]);
+  
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
