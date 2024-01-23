@@ -36,20 +36,26 @@ const Analytics = () => {
   const [dailyJobApplications, setDailyJobApplications] = useState([]);
 
   useEffect(() => {
-    apiService.get("/analytics")
-      .then((response) => {
+    const fetchData = async () => {
+      try {
+        const response = await apiService.get("/analytics");
+
         setTotalJobs(response.data.totalJobs);
         setTotalRejectedJobs(response.data.totalRejectedJobs);
         setTotalAcceptedJobs(response.data.totalAcceptedJobs);
         setTotalOAReceived(response.data.totalOAReceived);
         setTotalTechInterviewReceived(response.data.totalTechInterviewReceived);
-        setDailyJobApplications(response.data.dailyJobApplications.sort((a, b) => {
-          return new Date(a.date) - new Date(b.date);
-        }));
-      })
-      .catch((error) => {
+        setDailyJobApplications(
+          response.data.dailyJobApplications.sort((a, b) => {
+            return new Date(a.date) - new Date(b.date);
+          })
+        );
+      } catch (error) {
         console.error("Error fetching analytics data:", error);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
