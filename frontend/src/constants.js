@@ -29,4 +29,6 @@ export const platformTypes = [
     'SimplyHired',
     'Dice',
     'ZipRecruiter',
+    'Twitter',
+    'Other'
   ];
