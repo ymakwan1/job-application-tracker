@@ -3,8 +3,8 @@ from flask import jsonify, request
 from models import db, Job, ApplicationStatus
 from flask_cors import cross_origin
 from sqlalchemy.exc import IntegrityError
-import datetime
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,6 @@ def validate_job_data(data):
         return True
     else:
         return False
-
 
 def init_routes(app):
     @app.route('/api/jobs', methods=['POST'])
@@ -228,50 +227,3 @@ def init_routes(app):
         except Exception as e:
             logger.exception('An error occurred while fetching job details')
             return jsonify({'error': 'An error occurred while fetching job details'}), 500
-    
-    @app.route('/api/update_job/<string:job_id>', methods=['PUT'])
-    @cross_origin()
-    def update_job(job_id):
-        try:
-            data = request.get_json()
-            print(data)
-            job = Job.query.filter_by(job_id=job_id).first()
-            if job:
-                job.job_id = data.get('job_id', job.job_id)
-                job.title = data.get('title', job.title)
-                job.company = data.get('company', job.company)
-                job.job_type = data.get('jobType', job.job_type)
-                job.job_posting_url = data.get('jobPostingUrl', job.job_posting_url)
-                job.dashboard_url = data.get('dashboardUrl', job.dashboard_url)
-                job.job_posting_source = data.get('jobPostingSource', job.job_posting_source)
-                date_applied_str = data.get('date_applied', str(job.date_applied))
-                job.date_applied = datetime.datetime.strptime(date_applied_str, '%Y-%m-%d')
-                job.referral = data.get('referral', job.referral)
-                job.referrer_name = data.get('referrerName', job.referrer_name) if data.get('referral') else None
-
-                db.session.commit()
-
-                return jsonify({'message': 'Job updated successfully'}), 200
-            else:
-                error_message = f'Job with ID {job_id} not found'
-                logger.error(error_message)
-                return jsonify({'error': error_message}), 404
-        except IntegrityError as e:
-            db.session.rollback()
-            error_message = f'IntegrityError: {str(e)}'
-            logger.error(error_message)
-            return jsonify({'error': error_message}), 400
-        except Exception as e:
-            error_message = f'An error occurred: {str(e)}'
-            logger.error(error_message)
-            return jsonify({'error': error_message}), 500
-        
-    @app.route('/api/download-job-details', methods=['GET'])
-    @cross_origin()
-    def download_job_details():
-        try:
-            jobs = Job.query.all()
-            return convert_jobs_to_excel(jobs)
-        except Exception as e:
-            logger.error(f"An error occurred in download_job_details: {str(e)}")
-            return jsonify({'error': 'An error occurred while generating the Excel file'}), 500

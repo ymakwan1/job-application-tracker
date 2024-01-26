@@ -19,7 +19,7 @@ class Job(db.Model):
     job_posting_url = db.Column(db.String(255), nullable=False)
     dashboard_url = db.Column(db.String(255), nullable=False)
     job_posting_source = db.Column(db.String(50), nullable=False)
-    date_applied = db.Column(db.DateTime, nullable=False)
+    date_applied = db.Column(db.Date, nullable=False)
     referral = db.Column(db.Boolean, default=False)
     referrer_name = db.Column(db.String(255))
     application_status = db.Column(db.Enum(ApplicationStatus), default=ApplicationStatus.APPLIED)
