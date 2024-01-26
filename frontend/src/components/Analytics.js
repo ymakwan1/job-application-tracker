@@ -120,7 +120,7 @@ const Analytics = () => {
             {
               x: dailyJobApplications.map((entry) => entry.date),
               y: dailyJobApplications.map((entry) => entry.applications),
-              type: "bar",
+              type: "line",
               marker: { color: "blue" },
             },
           ]}

@@ -7,12 +7,20 @@ import {Typography,
     FormControl,
     Select,
     MenuItem,
-    TextField, useTheme, InputLabel } from "@mui/material";
+    TextField, 
+    useTheme, 
+    InputLabel, 
+    FormControlLabel,
+    Checkbox,
+    Snackbar,
+} from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import apiService from "../apiService";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useParams } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
+import { jobTitles, platformTypes } from "../constants";
 import dayjs from 'dayjs'
 
 const JobDetails = () => {
@@ -20,22 +28,57 @@ const JobDetails = () => {
     const { job_id } = useParams();
     const [jobDetails, setJobDetails] = useState(null);
     const [appliedDate, setAppliedDate] = useState(null);
+    const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
     
     useEffect(() => {
-        apiService.get(`/job_details/${job_id}`)
-        .then((response) => {
-            // console.log(response.data.jobDetails);
-            // console.log(format(new Date(response.data.jobDetails.date_applied.split("T")[0]).toLocaleDateString(), 'MM/dd/yyyy'))
-            setJobDetails(response.data.jobDetails);
-            setAppliedDate(dayjs(response.data.jobDetails.date_applied));
-        })
-        .catch((error) => console.error('Error fetching job details:', error));
+        const fetchJobDetails = async () => {
+            try {
+                const response = await apiService.get(`/job_details/${job_id}`);
+                setJobDetails(response.data.jobDetails);
+                setAppliedDate(dayjs(response.data.jobDetails.date_applied));
+            } catch (error) {
+                console.error('Error fetching job details:', error);
+            }
+        };
+
+        fetchJobDetails();
     }, [job_id]);
 
-    if (!jobDetails) {
-        return <p>Loading ...</p>
-    }
+    const updateJobDetails = async () => {
+        try {
+          if (jobDetails) {
+            await apiService.put(`/update_job/${job_id}`, {
+                job_id: jobDetails.job_id,
+                title: jobDetails.title,
+                company: jobDetails.company,
+                job_type: jobDetails.job_type,
+                job_posting_url: jobDetails.job_posting_url,
+                dashboard_url: jobDetails.dashboard_url,
+                job_posting_source: jobDetails.job_posting_source,
+                date_applied: dayjs(appliedDate).format('YYYY-MM-DD'),
+                referral: jobDetails.referral,
+                referrer_name: jobDetails.referrer_name,
+            });
+            console.log('Job details updated successfully');
+            setSuccessSnackbarOpen(true);
+          }
+        } catch (error) {
+          console.error('Error updating job details:', error);
+        }
+    };
 
+    const handleSnackbarClose = () => {
+        setSuccessSnackbarOpen(false);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        updateJobDetails();
+    };
+    if (!jobDetails) {
+        return <p>Loading ...</p>;
+    }
+    
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} locale="en">
         <Box
@@ -63,7 +106,7 @@ const JobDetails = () => {
                 <Typography variant="h6" gutterBottom align="center">
                 Job Details for Job ID: {job_id}
                 </Typography>
-                <form>
+                <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <InputLabel>Job ID</InputLabel>
@@ -71,7 +114,8 @@ const JobDetails = () => {
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
-                                value={jobDetails.job_id}
+                                value={jobDetails.job_id || ''}
+                                onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, job_id: e.target.value }))}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -81,6 +125,7 @@ const JobDetails = () => {
                                 fullWidth
                                 margin="normal"
                                 value={jobDetails.title}
+                                onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, title: e.target.value }))}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -90,38 +135,30 @@ const JobDetails = () => {
                                 fullWidth
                                 margin="normal"
                                 value={jobDetails.company}
+                                onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, company: e.target.value }))}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <InputLabel>Job Type</InputLabel>
                             <FormControl variant="outlined" fullWidth margin="normal">
-                            <Select 
-                                value={jobDetails.job_type}
-                                MenuProps={{
-                                    PaperProps: {
-                                        style: {
-                                            maxHeight: 200,
-                                            overflowY: 'auto',
+                                <Select 
+                                    value={jobDetails.job_type}
+                                    onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, job_type: e.target.value }))}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            style: {
+                                                maxHeight: 200,
+                                                overflowY: 'auto',
+                                            },
                                         },
-                                    },
-                                }}
-                            >
-                                <MenuItem value="">Select</MenuItem>
-                                <MenuItem value="SWE">SWE</MenuItem>
-                                <MenuItem value="SDE">SDE</MenuItem>
-                                <MenuItem value="FullStack">Full Stack</MenuItem>
-                                <MenuItem value="FrontEnd">Frontend</MenuItem>
-                                <MenuItem value="BackEndDeveloper">Backend</MenuItem>
-                                <MenuItem value="Cloud">Cloud</MenuItem>
-                                <MenuItem value="Data Engineering">Data Engineering</MenuItem>
-                                <MenuItem value="DevOps">DevOps Engineer</MenuItem>
-                                <MenuItem value="Automation">Automation</MenuItem>
-                                <MenuItem value="MobileAppDeveloper">Mobile App Developer</MenuItem>
-                                <MenuItem value="DatabaseAdministrator">Database Administrator</MenuItem>
-                                <MenuItem value="MLOps">ML Ops</MenuItem>
-                                <MenuItem value="AIEngineer">AI Engineer</MenuItem>
-                                <MenuItem value="MLEngineer">ML Engineer</MenuItem>
-                            </Select>
+                                    }}
+                                >
+                                    {jobTitles.map((title, index) => (
+                                        <MenuItem key={index} value={title}>
+                                            {title}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -131,6 +168,7 @@ const JobDetails = () => {
                                 fullWidth
                                 margin="normal"
                                 value={jobDetails.job_posting_url}
+                                onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, job_posting_url: e.target.value }))}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -140,6 +178,7 @@ const JobDetails = () => {
                                 fullWidth
                                 margin="normal"
                                 value={jobDetails.dashboard_url}
+                                onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, dashboard_url: e.target.value }))}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -147,6 +186,7 @@ const JobDetails = () => {
                             <FormControl variant="outlined" fullWidth margin="normal">
                                 <Select
                                     value={jobDetails.job_posting_source}
+                                    onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, job_posting_source: e.target.value }))}
                                     MenuProps={{
                                         PaperProps: {
                                             style: {
@@ -156,17 +196,11 @@ const JobDetails = () => {
                                         },
                                     }}
                                 >
-                                    <MenuItem value="">Select</MenuItem>
-                                    <MenuItem value="Company Website">Company Website</MenuItem>
-                                    <MenuItem value="LinkedIn">LinkedIn</MenuItem>
-                                    <MenuItem value="Indeed">Indeed</MenuItem>
-                                    <MenuItem value="Built-In">Built-In</MenuItem>
-                                    <MenuItem value="HandShake">HandShake</MenuItem>
-                                    <MenuItem value="Monster">Monster</MenuItem>
-                                    <MenuItem value="CareerBuilder">CareerBuilder</MenuItem>
-                                    <MenuItem value="SimplyHired">SimplyHired</MenuItem>
-                                    <MenuItem value="Dice">Dice</MenuItem>
-                                    <MenuItem value="ZipRecruiter">ZipRecruiter</MenuItem>
+                                    {platformTypes.map((title, index) =>
+                                        <MenuItem key={index} value={title}>
+                                            {title}
+                                        </MenuItem>
+                                    )};
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -174,38 +208,64 @@ const JobDetails = () => {
                             <InputLabel>Date Applied</InputLabel>
                             <FormControl variant="outlined" fullWidth margin="normal">
                             <DatePicker
-                                renderInput={(params) => (
+                                textField={(props) => (
                                     <TextField
-                                        {...params}
+                                        {...props}
                                         variant="outlined"
                                         format="MM-dd-yyyy"
                                         value={dayjs(appliedDate).format('MM-DD-YYYY')}
                                     />
                                 )}
                                 value={appliedDate}
-                                
+                                onChange={(date) => setAppliedDate(date)}
                             />
                             </FormControl>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={jobDetails.referral}
+                                        onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, referral: e.target.checked }))}
+                                        color="primary"
+                                    />
+                                }
+                                label="Referral"
+                            />
                         </Grid>
                         {jobDetails.referral && (
                             <Grid item xs={12} sm={6}>
                                 <InputLabel>Referrer Name</InputLabel>
                                 <TextField
-                                    variant="outlined"
-                                    fullWidth
-                                    margin="normal"
-                                    value={jobDetails.referrer_name}
+                                variant="outlined"
+                                fullWidth
+                                margin="normal"
+                                value={jobDetails.referrer_name}
+                                onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, referrer_name: e.target.value }))}
                                 />
                             </Grid>
                         )}
-                        <Grid xs={12}>
+                        <Grid item xs={12}>
                             <Button type="submit" variant="contained" color="primary" fullWidth>
                                 Update Job Details
                             </Button>
                         </Grid>
                     </Grid>
                 </form>
-
+                <Snackbar
+                    open={successSnackbarOpen}
+                    autoHideDuration={6000}
+                    onClose={handleSnackbarClose}
+                >
+                    <MuiAlert
+                        elevation={6}
+                        variant="filled"
+                        onClose={handleSnackbarClose}
+                        severity="success"
+                    >
+                        Job details updated successfully!
+                    </MuiAlert>
+                </Snackbar>
             </Paper>
         </Box>
         </LocalizationProvider>

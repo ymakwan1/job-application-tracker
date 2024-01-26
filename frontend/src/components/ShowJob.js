@@ -29,7 +29,7 @@ const ShowJob = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
-  const [statusChangeSuccess, setStatusChangeSuccess] = useState(false);
+  const [statusChangeSuccess, setStatusChangeSuccess] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -226,7 +226,7 @@ const ShowJob = () => {
           </Alert>
         </Snackbar>
         <Snackbar open={statusChangeSuccess !== null} autoHideDuration={5000} onClose={() => setStatusChangeSuccess(null)}>
-          <Alert onClose={() => setStatusChangeSuccess(null)} severity="success">
+          <Alert onClose={() => setStatusChangeSuccess(false)} severity="success">
             {`Application Status for Job ID ${statusChangeSuccess} changed`}
           </Alert>
         </Snackbar>
