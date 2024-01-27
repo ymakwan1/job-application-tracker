@@ -8,8 +8,7 @@ import {
   TableRow, 
   Paper, 
   Typography, 
-  Box, 
-  Button, 
+  Box,  
   Snackbar, 
   FormControl, 
   Select, 
@@ -17,71 +16,103 @@ import {
   InputAdornment, 
   TextField,
   useTheme,
+  CircularProgress,
+  IconButton
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import apiService from '../apiService';
+import { Link } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit'; 
+
+
+
 const ShowJob = () => {
   const theme = useTheme(); 
   const [jobs, setJobs] = useState([]);
   const [deletedJobId, setDeletedJobId] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState(null);
+  const [statusChangeSuccess, setStatusChangeSuccess] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiService.get('/show_jobs')
-      .then((response) => {
-        setJobs(response.data.jobs);
-      })
-      .catch((error) => console.error('Error fetching jobs:', error));
+    const fetchData = async () => {
+      try {
+        const response = await apiService.get('/show_jobs');
+        const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date_applied) - new Date(a.date_applied));
+        setJobs(sortedJobs);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        setError('Error fetching jobs. Please try again.');
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [deletedJobId]);
 
-  const handleDelete = (jobId) => {
-    apiService.delete(`/delete_job/${jobId}`)
-      .then(() => {
-        setDeletedJobId(jobId);
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          setDeletedJobId(null);
-        }, 5000);
-      })
-      .catch((error) => console.error('Error deleting job:', error));
-  };
-
-  const handleStatusChange = (jobId, newStatus) => {
-    apiService.put(`/update_status/${jobId}`, { newStatus })
-      .then(() => {
-        apiService.get('/show_jobs')
-          .then((response) => {
-            setJobs(response.data.jobs);
-          })
-          .catch((error) => console.error('Error fetching jobs:', error));
-      })
-      .catch((error) => console.error('Error updating status:', error));
-  };
-
-  const handleSearch = (searchTerm) => {
-    setSearchTerm(searchTerm);
-  
-    if (searchTerm.trim() === '') {
-      // If the search term is empty, reset the jobs to the original list
-      apiService.get('/show_jobs')
-        .then((response) => {
-          setJobs(response.data.jobs);
-        })
-        .catch((error) => console.error('Error fetching jobs:', error));
-    } else {
-      // Filter jobs based on the search term
-      const filteredJobs = jobs.filter((job) => 
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.job_type.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setJobs(filteredJobs);
+  const handleDelete = async (jobId) => {
+    try {
+      await apiService.delete(`/delete_job/${jobId}`);
+      setDeletedJobId(jobId);
+      setShowSuccess(true);
+      setError(null);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setDeletedJobId(null);
+      }, 5000);
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      setError('Error deleting job. Please try again.');
     }
   };
-  
 
+  const handleStatusChange = async (jobId, newStatus) => {
+    try {
+      await apiService.put(`/update_status/${jobId}`, { newStatus });
+      const response = await apiService.get('/show_jobs');
+      const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date_applied) - new Date(a.date_applied));
+      setJobs(sortedJobs);
+      setError(null);
+      setStatusChangeSuccess(jobId);
+      setTimeout(() => {
+        setStatusChangeSuccess(null);
+      }, 5000);
+    } catch (error) {
+      console.error('Error updating status:', error);
+      setError('Error updating status. Please try again.');
+    }
+  };
+
+  const handleSearch = async (searchTerm) => {
+    setSearchTerm(searchTerm);
+
+    try {
+      if (searchTerm.trim() === '') {
+        const response = await apiService.get('/show_jobs');
+        const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date_applied) - new Date(a.date_applied));
+        setJobs(sortedJobs);
+      } else {
+        const filteredJobs = jobs.filter((job) =>
+          job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.job_type.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setJobs(filteredJobs);
+      }
+      setError(null); 
+    } catch (error) {
+      console.error('Error fetching or filtering jobs:', error);
+      setError('Error fetching or filtering jobs. Please try again.');
+    }
+  };
+
+  const handleCloseError = () => {
+    setError(null); 
+  };
+  
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
@@ -124,17 +155,23 @@ const ShowJob = () => {
           }}
           style={{ marginBottom: '20px' }}
         />
-        {jobs.length === 0 ? (
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress size={60} thickness={4} />
+          </Box>
+        ) :
+        jobs.length === 0 ? (
           <Typography variant="body1" style={{ color: theme.palette.text.primary }}>
             {searchTerm.trim() === ''
               ? 'No jobs available.'
               : 'No jobs match the search criteria.'}
           </Typography>
         ) : (
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} elevation={0}>
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Job ID</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Title</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Company</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Job Type</TableCell>
@@ -143,19 +180,20 @@ const ShowJob = () => {
                   <TableCell style={{ color: theme.palette.text.primary }}>Dashboard</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Application Status</TableCell>
-                  <TableCell style={{ color: theme.palette.text.primary }}>Action</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Delete / Edit</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {jobs.map((job) => (
                   <TableRow key={job.job_id}>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.job_id}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.title}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.company}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.job_type}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{new Date(job.date_applied).toLocaleDateString()}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.job_posting_source}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>
-                      <a href={job.dashboard_url} target="_blank" rel="noopener noreferrer">
+                      <a href={job.dashboard_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: theme.palette.info.main }}>
                         Dashboard
                       </a>
                     </TableCell>
@@ -177,13 +215,21 @@ const ShowJob = () => {
                       </FormControl>
                     </TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>
-                      <Button
-                        variant="outlined"
+                      <IconButton
                         color="secondary"
                         onClick={() => handleDelete(job.job_id)}
+                        title="Delete"
                       >
-                        Delete
-                      </Button>
+                        <DeleteIcon />
+                      </IconButton>
+                      <IconButton
+                        color="primary"
+                        component={Link}
+                        to={`/job_details/${job.job_id}`}
+                        title="Edit"
+                      >
+                        <EditIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -193,7 +239,17 @@ const ShowJob = () => {
         )}
         <Snackbar open={showSuccess} autoHideDuration={5000} onClose={() => setShowSuccess(false)}>
           <Alert onClose={() => setShowSuccess(false)} severity="success">
-            {`Job with job id ${deletedJobId} deleted successfully`}
+            {`Job with Job ID ${deletedJobId} deleted successfully`}
+          </Alert>
+        </Snackbar>
+        <Snackbar open={statusChangeSuccess !== null} autoHideDuration={5000} onClose={() => setStatusChangeSuccess(null)}>
+          <Alert onClose={() => setStatusChangeSuccess(false)} severity="success">
+            {`Application Status for Job ID ${statusChangeSuccess} changed`}
+          </Alert>
+        </Snackbar>
+        <Snackbar open={error !== null} autoHideDuration={5000} onClose={handleCloseError}>
+          <Alert onClose={handleCloseError} severity="error">
+            {error}
           </Alert>
         </Snackbar>
       </Paper>

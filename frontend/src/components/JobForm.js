@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   TextField,
   Button,
@@ -18,7 +18,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import MuiAlert from '@mui/material/Alert';
+import dayjs from 'dayjs';
 import apiService from '../apiService';
+import { jobTitles, platformTypes } from '../constants';
 
 const CustomAlert = React.forwardRef(function CustomAlert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -26,16 +28,31 @@ const CustomAlert = React.forwardRef(function CustomAlert(props, ref) {
 
 const JobForm = ({ onSubmit }) => {
   const theme = useTheme();
-  const [jobId, setJobId] = useState('');
-  const [title, setTitle] = useState('');
-  const [company, setCompany] = useState('');
-  const [jobType, setJobType] = useState('');
-  const [jobPostingUrl, setJobPostingUrl] = useState('');
-  const [dashboardUrl, setDashboardUrl] = useState('');
-  const [jobPostingSource, setJobPostingSource] = useState('');
-  const [dateApplied, setDateApplied] = useState(null);
-  const [referral, setReferral] = useState(false);
-  const [referrerName, setReferrerName] = useState('');
+
+  const [formState, setFormState] = useState({
+    jobId : '',
+    title : '',
+    company : '',
+    jobType : '',
+    jobPostingUrl : '',
+    dashboardUrl : '',
+    jobPostingSource : '',
+    dateApplied : dayjs(),
+    referral : false,
+    referrerName : '',
+  });
+
+  const handleInputChange = useCallback((field, value) => {
+    setFormState((prevFormState) => ({
+      ...prevFormState,
+      [field] : value,
+    }));
+  }, []);
+
+  const handleCloseErrorSnackbar = useCallback(() => {
+    setErrorSnackbar(false);
+  }, []);
+
   const [jobIdError, setJobIdError] = useState('');
   const [titleError, setTitleError] = useState('');
   const [companyError, setCompanyError] = useState('');
@@ -49,19 +66,16 @@ const JobForm = ({ onSubmit }) => {
   const [errorSnackbar, setErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  
   const isURLValid = (url) => {
     // Regular expression for a valid URL
     const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
     return urlRegex.test(url);
   };
 
-  const handleCloseErrorSnackbar = () => {
-    setErrorSnackbar(false);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-
+  
     setJobIdError('');
     setTitleError('');
     setCompanyError('');
@@ -71,108 +85,108 @@ const JobForm = ({ onSubmit }) => {
     setJobPostingSourceError('');
     setReferrerNameError('');
     setDateAppliedError('');
-
-    if (!jobId.trim()) {
-      setJobIdError('Job ID is required');
-      return;
-    }
-
-    if (!title.trim()) {
-      setTitleError('Job Title is required');
-      return;
-    }
-
-    if (!company.trim()) {
-      setCompanyError('Company Name is required');
-      return;
-    }
-
-    if (!jobType) {
-      setJobTypeError('Job Type is required');
-      return;
-    }
-
-    if (!jobPostingUrl.trim()) {
-      setJobPostingUrlError('Job Posting URL is required');
-      return;
-    }
-
-    if (!dashboardUrl.trim()) {
-      setDashboardUrlError('Dashboard URL is required');
-      return;
-    }
-
-    if (!jobPostingSource) {
-      setJobPostingSourceError('Job Posting Source is required');
-      return;
-    }
-
-    if (!dateApplied) {
-      setDateAppliedError('Date Applied is required');
-      return;
-    }
-
-    if (referral && !referrerName.trim()) {
-      setReferrerNameError('Referrer Name is required if referral is checked');
-      return;
-    }
-
-    if (!isURLValid(jobPostingUrl)) {
-      setJobPostingUrlError('Enter a valid Job Posting URL');
-      return;
-    }
-
-    if (!isURLValid(dashboardUrl)) {
-      setDashboardUrlError('Enter a valid Dashboard URL');
-      return;
-    }
-
-    apiService.post('/jobs', {
-        jobId,
-        title,
-        company,
-        jobType,
-        jobPostingUrl,
-        dashboardUrl,
-        jobPostingSource,
-        dateApplied,
-        referral,
-        referrerName: referral ? referrerName : null,
-      })
-      .then((response) => {
-        onSubmit(response.data);
-        setJobId('');
-        setTitle('');
-        setCompany('');
-        setJobType('');
-        setJobPostingUrl('');
-        setDashboardUrl('');
-        setJobPostingSource('');
-        setDateApplied(null);
-        setReferral(false);
-        setReferrerName('');
-        setShowSuccess(true);
-
-        // Reset success message after 5 seconds
-        setTimeout(() => {
-          setShowSuccess(false);
-        }, 5000);
-      })
-      .catch((error) => {
-        setErrorMessage(error.response.data.error);
-        setErrorSnackbar(true);
-        setJobId('');
-        setTitle('');
-        setCompany('');
-        setJobType('');
-        setJobPostingUrl('');
-        setDashboardUrl('');
-        setJobPostingSource('');
-        setDateApplied(null);
-        setReferral(false);
-        setReferrerName('');
+  
+    try {
+      if (!formState.jobId.trim()) {
+        setJobIdError('Job ID is required');
+        return;
+      }
+  
+      if (!formState.title.trim()) {
+        setTitleError('Job Title is required');
+        return;
+      }
+  
+      if (!formState.company.trim()) {
+        setCompanyError('Company Name is required');
+        return;
+      }
+  
+      if (!formState.jobType) {
+        setJobTypeError('Job Type is required');
+        return;
+      }
+  
+      if (!formState.jobPostingUrl.trim()) {
+        setJobPostingUrlError('Job Posting URL is required');
+        return;
+      }
+  
+      if (!formState.dashboardUrl.trim()) {
+        setDashboardUrlError('Dashboard URL is required');
+        return;
+      }
+  
+      if (!formState.jobPostingSource) {
+        setJobPostingSourceError('Job Posting Source is required');
+        return;
+      }
+  
+      if (!formState.dateApplied) {
+        setDateAppliedError('Date Applied is required');
+        return;
+      }
+  
+      if (formState.referral && !formState.referrerName.trim()) {
+        setReferrerNameError('Referrer Name is required if referral is checked');
+        return;
+      }
+  
+      if (!isURLValid(formState.jobPostingUrl)) {
+        setJobPostingUrlError('Enter a valid Job Posting URL');
+        return;
+      }
+  
+      if (!isURLValid(formState.dashboardUrl)) {
+        setDashboardUrlError('Enter a valid Dashboard URL');
+        return;
+      }
+  
+      const response = await apiService.post('/jobs', {
+        ...formState,
+        referrerName: formState.referral ? formState.referrerName : null,
       });
-  };
+  
+      onSubmit(response.data);
+  
+      setFormState({
+        jobId: '',
+        title: '',
+        company: '',
+        jobType: '',
+        jobPostingUrl: '',
+        dashboardUrl: '',
+        jobPostingSource: '',
+        dateApplied: dayjs(),
+        referral: false,
+        referrerName: '',
+      });
+  
+      setShowSuccess(true);
+  
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 5000);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.error || 'An error occurred');
+      setErrorSnackbar(true);
+  
+      setFormState({
+        jobId: '',
+        title: '',
+        company: '',
+        jobType: '',
+        jobPostingUrl: '',
+        dashboardUrl: '',
+        jobPostingSource: '',
+        dateApplied: null,
+        referral: false,
+        referrerName: '',
+      });
+    }
+  }, [formState, onSubmit]);
+  
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -182,7 +196,6 @@ const JobForm = ({ onSubmit }) => {
         alignItems="center"
         minHeight="100vh"
         width="100%"
-        // style={{ backgroundColor: '#f0f0f0' }}
         style={{ backgroundColor: theme.palette.background.default }}
       >
         <Paper
@@ -204,8 +217,8 @@ const JobForm = ({ onSubmit }) => {
                   variant="outlined"
                   fullWidth
                   margin="normal"
-                  value={jobId}
-                  onChange={(e) => setJobId(e.target.value)}
+                  value={formState.jobId}
+                  onChange={(e) => handleInputChange('jobId', e.target.value)}
                   error={!!jobIdError}
                   helperText={jobIdError}
                 />
@@ -216,8 +229,8 @@ const JobForm = ({ onSubmit }) => {
                   variant="outlined"
                   fullWidth
                   margin="normal"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  value={formState.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
                   error={!!titleError}
                   helperText={titleError}
                 />
@@ -228,8 +241,8 @@ const JobForm = ({ onSubmit }) => {
                   variant="outlined"
                   fullWidth
                   margin="normal"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
+                  value={formState.company}
+                  onChange={(e) => handleInputChange('company', e.target.value)}
                   error={!!companyError}
                   helperText={companyError}
                 />
@@ -240,34 +253,24 @@ const JobForm = ({ onSubmit }) => {
                   <Select
                     labelId="job-type-label"
                     id="job-type"
-                    value={jobType}
-                    onChange={(e) => setJobType(e.target.value)}
+                    value={formState.jobType}
+                    onChange={(e) => handleInputChange('jobType', e.target.value)}
                     label="Job Type"
                     error={!!jobTypeError}
                     MenuProps={{
                       PaperProps: {
                         style: {
-                          maxHeight: 200, // Set the maximum height for the dropdown menu
-                          overflowY: 'auto', // Enable vertical scrollbar if needed
+                          maxHeight: 200, 
+                          overflowY: 'auto', 
                         },
                       },
                     }}
                   >
-                    <MenuItem value="">Select</MenuItem>
-                    <MenuItem value="SWE">SWE</MenuItem>
-                    <MenuItem value="SDE">SDE</MenuItem>
-                    <MenuItem value="FullStack">Full Stack</MenuItem>
-                    <MenuItem value="FrontEnd">Frontend</MenuItem>
-                    <MenuItem value="BackEndDeveloper">Backend</MenuItem>
-                    <MenuItem value="Cloud">Cloud</MenuItem>
-                    <MenuItem value="Data Engineering">Data Engineering</MenuItem>
-                    <MenuItem value="DevOps">DevOps Engineer</MenuItem>
-                    <MenuItem value="Automation">Automation</MenuItem>
-                    <MenuItem value="MobileAppDeveloper">Mobile App Developer</MenuItem>
-                    <MenuItem value="DatabaseAdministrator">Database Administrator</MenuItem>
-                    <MenuItem value="MLOps">ML Ops</MenuItem>
-                    <MenuItem value="AIEngineer">AI Engineer</MenuItem>
-                    <MenuItem value="MLEngineer">ML Engineer</MenuItem>
+                    {jobTitles.map((title, index) =>
+                      <MenuItem key={index} value={title}>
+                        {title}
+                      </MenuItem>
+                    )};
                   </Select>
                 </FormControl>
                 {jobTypeError && (
@@ -282,8 +285,8 @@ const JobForm = ({ onSubmit }) => {
                   variant="outlined"
                   fullWidth
                   margin="normal"
-                  value={jobPostingUrl}
-                  onChange={(e) => setJobPostingUrl(e.target.value)}
+                  value={formState.jobPostingUrl}
+                  onChange={(e) => handleInputChange('jobPostingUrl', e.target.value)}
                   error={!!jobPostingUrlError}
                   helperText={jobPostingUrlError}
                 />
@@ -294,8 +297,8 @@ const JobForm = ({ onSubmit }) => {
                   variant="outlined"
                   fullWidth
                   margin="normal"
-                  value={dashboardUrl}
-                  onChange={(e) => setDashboardUrl(e.target.value)}
+                  value={formState.dashboardUrl}
+                  onChange={(e) => handleInputChange('dashboardUrl', e.target.value)}
                   error={!!dashboardUrlError}
                   helperText={dashboardUrlError}
                 />
@@ -306,8 +309,8 @@ const JobForm = ({ onSubmit }) => {
                   <Select
                     labelId="job-posting-source-label"
                     id="job-posting-source"
-                    value={jobPostingSource}
-                    onChange={(e) => setJobPostingSource(e.target.value)}
+                    value={formState.jobPostingSource}
+                    onChange={(e) => handleInputChange('jobPostingSource', e.target.value)}
                     label="Job Posting Source"
                     error={!!jobPostingSourceError}
                     MenuProps={{
@@ -319,17 +322,11 @@ const JobForm = ({ onSubmit }) => {
                       },
                     }}
                   >
-                    <MenuItem value="">Select</MenuItem>
-                    <MenuItem value="Company Website">Company Website</MenuItem>
-                    <MenuItem value="LinkedIn">LinkedIn</MenuItem>
-                    <MenuItem value="Indeed">Indeed</MenuItem>
-                    <MenuItem value="Built-In">Built-In</MenuItem>
-                    <MenuItem value="HandShake">HandShake</MenuItem>
-                    <MenuItem value="Monster">Monster</MenuItem>
-                    <MenuItem value="CareerBuilder">CareerBuilder</MenuItem>
-                    <MenuItem value="SimplyHired">SimplyHired</MenuItem>
-                    <MenuItem value="Dice">Dice</MenuItem>
-                    <MenuItem value="ZipRecruiter">ZipRecruiter</MenuItem>
+                    {platformTypes.map((title, index) =>
+                      <MenuItem key={index} value={title}>
+                        {title}
+                      </MenuItem>
+                    )};
                   </Select>
                 </FormControl>
                 {jobPostingSourceError && (
@@ -341,16 +338,16 @@ const JobForm = ({ onSubmit }) => {
               <Grid item xs={12} sm={6} style={{ display: 'flex', alignItems: 'center' }}>
                 <FormControl variant="outlined" fullWidth margin="normal">
                   <DatePicker
-                    value={dateApplied}
-                    onChange={(newValue) => setDateApplied(newValue)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
+                    value={formState.dateApplied}
+                    onChange={(newValue) => handleInputChange('dateApplied', newValue)}
+                    textField={(props) => 
+                      <TextField 
+                        {...props} 
                         variant="outlined"
                         error={!!dateAppliedError}
-                        helperText={dateAppliedError}
+                        helperText={dateAppliedError}  
                       />
-                    )}
+                    }
                   />
                 </FormControl>
               </Grid>
@@ -358,23 +355,23 @@ const JobForm = ({ onSubmit }) => {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={referral}
-                      onChange={(e) => setReferral(e.target.checked)}
+                      checked={formState.referral}
+                      onChange={(e) => handleInputChange('referral', e.target.checked)}
                       color="primary"
                     />
                   }
                   label="Referral"
                 />
               </Grid>
-              {referral && (
+              {formState.referral && (
                 <Grid item xs={12} sm={6}>
                   <TextField
                     label="Referrer Name"
                     variant="outlined"
                     fullWidth
                     margin="normal"
-                    value={referrerName}
-                    onChange={(e) => setReferrerName(e.target.value)}
+                    value={formState.referrerName}
+                    onChange={(e) => handleInputChange('referrerName', e.target.value)}
                     error={!!referrerNameError}
                     helperText={referrerNameError}
                   />

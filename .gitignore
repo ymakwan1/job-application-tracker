@@ -1,4 +1,2 @@
 backend/venv/
 backend/__pycache__/
-backend/migrations/versions/
-backend/migrations/versions/__pycache__/

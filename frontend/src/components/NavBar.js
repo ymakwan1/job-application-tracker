@@ -5,7 +5,9 @@ import { AppBar, Toolbar, Typography, Switch, FormControlLabel } from '@mui/mate
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 
+
 const NavBar = ({ toggleTheme, isDarkTheme }) => {
+
   return (
     <AppBar position="static">
       <Toolbar style={{ justifyContent: 'space-between' }}>

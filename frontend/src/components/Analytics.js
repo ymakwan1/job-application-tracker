@@ -36,19 +36,26 @@ const Analytics = () => {
   const [dailyJobApplications, setDailyJobApplications] = useState([]);
 
   useEffect(() => {
-    apiService.get("/analytics")
-      .then((response) => {
+    const fetchData = async () => {
+      try {
+        const response = await apiService.get("/analytics");
+
         setTotalJobs(response.data.totalJobs);
         setTotalRejectedJobs(response.data.totalRejectedJobs);
         setTotalAcceptedJobs(response.data.totalAcceptedJobs);
         setTotalOAReceived(response.data.totalOAReceived);
         setTotalTechInterviewReceived(response.data.totalTechInterviewReceived);
-        setDailyJobApplications(response.data.dailyJobApplications || []);
-        console.log(response.data.dailyJobApplications)
-      })
-      .catch((error) => {
+        setDailyJobApplications(
+          response.data.dailyJobApplications.sort((a, b) => {
+            return new Date(a.date) - new Date(b.date);
+          })
+        );
+      } catch (error) {
         console.error("Error fetching analytics data:", error);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -60,7 +67,6 @@ const Analytics = () => {
       height="100vh"
       width="100%"
       bgcolor={theme.palette.background.default}
-      // bgcolor="#f0f0f0"
     >
       <Paper
         elevation={3}
@@ -70,9 +76,7 @@ const Analytics = () => {
           maxWidth: "100%",
           margin: "auto",
           backgroundColor: theme.palette.background.paper, 
-          // backgroundColor: "#fff",
           borderRadius: "8px",
-          //boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
           boxShadow: theme.shadows[5],
           marginBottom: "20px", 
         }}
@@ -102,22 +106,21 @@ const Analytics = () => {
           width: "1000px", 
           maxWidth: "100%",
           margin: "auto",
-          // backgroundColor: "#fff",
           backgroundColor: theme.palette.background.paper,
           borderRadius: "8px",
-          // boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
           boxShadow: theme.shadows[5],
         }}
       >
         <Typography variant="h5" gutterBottom>
           Daily Job Applications
         </Typography>
-        <Plot
+        {dailyJobApplications.length > 0 ? (
+          <Plot
           data={[
             {
               x: dailyJobApplications.map((entry) => entry.date),
               y: dailyJobApplications.map((entry) => entry.applications),
-              type: "bar",
+              type: "line",
               marker: { color: "blue" },
             },
           ]}
@@ -133,10 +136,15 @@ const Analytics = () => {
               dtick: 1, 
             },
             margin: { t: 50, l: "auto", r: "auto", b: 50 },
-            bargap: 0.1, 
-            bargroupgap: 0.2,
+            bargap: 0, 
+            bargroupgap: 0.1,
           }}
         />
+        ) : (
+          <Typography variant="body1" color="textSecondary">
+            No data available for daily job applications.
+          </Typography>
+        )}     
       </Paper>
     </Box>
   );

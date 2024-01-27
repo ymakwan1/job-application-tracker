@@ -17,9 +17,11 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { jobTitles, platformTypes } from '../constants';
 import axios from 'axios';
 
 const UpdateJob = ({ jobData, onUpdate }) => {
+  
   const [jobId, setJobId] = useState(jobData.jobId);
   const [title, setTitle] = useState(jobData.title);
   const [company, setCompany] = useState(jobData.company);
@@ -30,14 +32,6 @@ const UpdateJob = ({ jobData, onUpdate }) => {
   const [dateApplied, setDateApplied] = useState(new Date(jobData.dateApplied));
   const [referral, setReferral] = useState(jobData.referral);
   const [referrerName, setReferrerName] = useState(jobData.referrerName || '');
-  const [companyOptions, setCompanyOptions] = useState([]);
-
-  useEffect(() => {
-    axios
-      .get('http://localhost:5000/api/companies')
-      .then((response) => setCompanyOptions(response.data))
-      .catch((error) => console.error('Error fetching companies:', error));
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,6 +49,7 @@ const UpdateJob = ({ jobData, onUpdate }) => {
         referrerName: referral ? referrerName : null,
       })
       .then((response) => {
+        
         onUpdate(response.data);
         // Reset state after successful update
         setJobId('');
@@ -77,7 +72,7 @@ const UpdateJob = ({ jobData, onUpdate }) => {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="100vh"
+        minHeight="50vh"
         width="100%"
         style={{ backgroundColor: '#f0f0f0' }}
       >
@@ -113,20 +108,13 @@ const UpdateJob = ({ jobData, onUpdate }) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Autocomplete
-                  options={companyOptions}
-                  getOptionLabel={(option) => option}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Company"
-                      variant="outlined"
-                      fullWidth
-                      margin="normal"
-                      value={company}
-                      onChange={(e) => setCompany(e.target.value)}
-                    />
-                  )}
+                <TextField
+                    label="Company"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -189,9 +177,9 @@ const UpdateJob = ({ jobData, onUpdate }) => {
                   <DatePicker
                     value={dateApplied}
                     onChange={(newValue) => setDateApplied(newValue)}
-                    renderInput={(params) => (
+                    textField={(props) => (
                       <TextField
-                        {...params}
+                        {...props}
                         variant="outlined"
                       />
                     )}
