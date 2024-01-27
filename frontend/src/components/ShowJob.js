@@ -8,8 +8,7 @@ import {
   TableRow, 
   Paper, 
   Typography, 
-  Box, 
-  Button, 
+  Box,  
   Snackbar, 
   FormControl, 
   Select, 
@@ -17,10 +16,16 @@ import {
   InputAdornment, 
   TextField,
   useTheme,
+  CircularProgress,
+  IconButton
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import apiService from '../apiService';
 import { Link } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit'; 
+
+
 
 const ShowJob = () => {
   const theme = useTheme(); 
@@ -30,6 +35,7 @@ const ShowJob = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
   const [statusChangeSuccess, setStatusChangeSuccess] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,9 +43,11 @@ const ShowJob = () => {
         const response = await apiService.get('/show_jobs');
         const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date_applied) - new Date(a.date_applied));
         setJobs(sortedJobs);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching jobs:', error);
         setError('Error fetching jobs. Please try again.');
+        setLoading(false);
       }
     };
     fetchData();
@@ -102,7 +110,7 @@ const ShowJob = () => {
   };
 
   const handleCloseError = () => {
-    setError(null); // Clear error when Snackbar is closed
+    setError(null); 
   };
   
   const Alert = React.forwardRef(function Alert(props, ref) {
@@ -147,14 +155,19 @@ const ShowJob = () => {
           }}
           style={{ marginBottom: '20px' }}
         />
-        {jobs.length === 0 ? (
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress size={60} thickness={4} />
+          </Box>
+        ) :
+        jobs.length === 0 ? (
           <Typography variant="body1" style={{ color: theme.palette.text.primary }}>
             {searchTerm.trim() === ''
               ? 'No jobs available.'
               : 'No jobs match the search criteria.'}
           </Typography>
         ) : (
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} elevation={0}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -167,17 +180,13 @@ const ShowJob = () => {
                   <TableCell style={{ color: theme.palette.text.primary }}>Dashboard</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Application Status</TableCell>
-                  <TableCell style={{ color: theme.palette.text.primary }}>Action</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Delete / Edit</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {jobs.map((job) => (
                   <TableRow key={job.job_id}>
-                    <TableCell style={{ color: theme.palette.text.primary }}>
-                      <Link to={`/job_details/${job.job_id}`} style={{ textDecoration: 'underline', color: theme.palette.info.main }}>
-                        {job.job_id}
-                      </Link>
-                    </TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.job_id}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.title}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.company}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.job_type}</TableCell>
@@ -206,13 +215,21 @@ const ShowJob = () => {
                       </FormControl>
                     </TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>
-                      <Button
-                        variant="outlined"
+                      <IconButton
                         color="secondary"
                         onClick={() => handleDelete(job.job_id)}
+                        title="Delete"
                       >
-                        Delete
-                      </Button>
+                        <DeleteIcon />
+                      </IconButton>
+                      <IconButton
+                        color="primary"
+                        component={Link}
+                        to={`/job_details/${job.job_id}`}
+                        title="Edit"
+                      >
+                        <EditIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
