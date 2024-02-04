@@ -16,8 +16,13 @@ services:
   react-app:
     build:
       context: ./frontend
+      dockerfile: Dockerfile  
     ports:
-      - "3000:3000"
+      - "8080:8080"                     
+    environment:
+      - REACT_APP_API_URL=http://flask-app:5000  
+    depends_on:
+      - flask-app
 
   postgres:
     image: postgres:latest
