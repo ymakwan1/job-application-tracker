@@ -16,15 +16,17 @@ import {
   InputAdornment, 
   TextField,
   useTheme,
+  Grid,
   CircularProgress,
-  IconButton
+  IconButton,
+  InputLabel
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import apiService from '../apiService';
 import { Link } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit'; 
-
+import { applicationStatusOptions } from '../constants';
 
 
 const ShowJob = () => {
@@ -36,12 +38,13 @@ const ShowJob = () => {
   const [error, setError] = useState(null);
   const [statusChangeSuccess, setStatusChangeSuccess] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await apiService.get('/show_jobs');
-        const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date_applied) - new Date(a.date_applied));
+        const response = await apiService.get(`/show_jobs?search=${searchTerm}&status=${statusFilter}`);
+        const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date) - new Date(a.date));
         setJobs(sortedJobs);
         setLoading(false);
       } catch (error) {
@@ -51,7 +54,7 @@ const ShowJob = () => {
       }
     };
     fetchData();
-  }, [deletedJobId]);
+  }, [deletedJobId, searchTerm, statusFilter]);
 
   const handleDelete = async (jobId) => {
     try {
@@ -72,8 +75,8 @@ const ShowJob = () => {
   const handleStatusChange = async (jobId, newStatus) => {
     try {
       await apiService.put(`/update_status/${jobId}`, { newStatus });
-      const response = await apiService.get('/show_jobs');
-      const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date_applied) - new Date(a.date_applied));
+      const response = await apiService.get(`/show_jobs?search=${searchTerm}&status=${statusFilter}`);
+      const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date) - new Date(a.date));
       setJobs(sortedJobs);
       setError(null);
       setStatusChangeSuccess(jobId);
@@ -88,30 +91,27 @@ const ShowJob = () => {
 
   const handleSearch = async (searchTerm) => {
     setSearchTerm(searchTerm);
-
+  
     try {
-      if (searchTerm.trim() === '') {
-        const response = await apiService.get('/show_jobs');
-        const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date_applied) - new Date(a.date_applied));
-        setJobs(sortedJobs);
-      } else {
-        const filteredJobs = jobs.filter((job) =>
-          job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.job_type.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setJobs(filteredJobs);
-      }
-      setError(null); 
+      const response = await apiService.get(`/show_jobs?search=${searchTerm}&status=${statusFilter}`);
+      const sortedJobs = [...response.data.jobs].sort((a, b) => new Date(b.date) - new Date(a.date));
+      setJobs(sortedJobs);
+      setError(null);
     } catch (error) {
       console.error('Error fetching or filtering jobs:', error);
       setError('Error fetching or filtering jobs. Please try again.');
     }
   };
+  
 
   const handleCloseError = () => {
     setError(null); 
   };
+
+  const handleStatusFilterChange = (event) => { 
+    setStatusFilter(event.target.value);
+  };
+
   
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -139,22 +139,45 @@ const ShowJob = () => {
         <Typography variant="h5" gutterBottom>
           List of Jobs Applied
         </Typography>
-        <TextField
-          label="Search Jobs"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={searchTerm}
-          onChange={(e) => handleSearch(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <i className="fas fa-search" style={{ color: theme.palette.text.secondary }}></i>
-              </InputAdornment>
-            ),
-          }}
-          style={{ marginBottom: '20px' }}
-        />
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={8}> 
+            <TextField
+              label="Search Jobs"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <i className="fas fa-search" style={{ color: theme.palette.text.secondary }}></i>
+                  </InputAdornment>
+                ),
+              }}
+              style={{ marginBottom: '20px' }}
+            />
+          </Grid>
+          <Grid item xs={4}> 
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel htmlFor="status-filter" style={{ marginBottom: '8px' }}>Filter by Status</InputLabel>
+              <Select
+                value={statusFilter}
+                onChange={handleStatusFilterChange}
+                label="Filter by Status"
+                inputProps={{
+                  id: 'status-filter',
+                }}
+              >
+                {applicationStatusOptions.map((status, index) => (
+                  <MenuItem key={index} value={status}>
+                      {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
         {loading ? (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
             <CircularProgress size={60} thickness={4} />
@@ -175,7 +198,7 @@ const ShowJob = () => {
                   <TableCell style={{ color: theme.palette.text.primary }}>Title</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Company</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Job Type</TableCell>
-                  <TableCell style={{ color: theme.palette.text.primary }}>Applied On</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Date</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Source</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Dashboard</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell>
@@ -190,7 +213,7 @@ const ShowJob = () => {
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.title}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.company}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.job_type}</TableCell>
-                    <TableCell style={{ color: theme.palette.text.primary }}>{new Date(job.date_applied).toLocaleDateString()}</TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.date}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.job_posting_source}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>
                       <a href={job.dashboard_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: theme.palette.info.main }}>
