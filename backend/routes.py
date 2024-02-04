@@ -3,6 +3,8 @@ from flask import jsonify, request
 from models import db, Job, ApplicationStatus
 from flask_cors import cross_origin
 from sqlalchemy.exc import IntegrityError
+import pytz
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,6 +39,10 @@ def init_routes(app):
                 logger.error(error_msg)
                 return jsonify({'error': error_msg}), 400
 
+            est_timezone = pytz.timezone('America/New_York')
+            est_now = datetime.now(est_timezone)
+            est_date = est_now.date()
+
             new_job = Job(
                 job_id=job_id,
                 title=data['title'],
@@ -45,7 +51,7 @@ def init_routes(app):
                 job_posting_url=data['jobPostingUrl'],
                 dashboard_url=data['dashboardUrl'],
                 job_posting_source=data['jobPostingSource'],
-                date_applied=data['dateApplied'],
+                date_applied=est_date,
                 referral=data['referral'],
                 referrer_name=data['referrerName'] if data['referral'] else None,
                 application_status=ApplicationStatus.APPLIED
@@ -66,24 +72,24 @@ def init_routes(app):
             logger.exception('An error occurred while adding a job')
             return jsonify({'error': 'An error occurred while adding a job'}), 500
 
-    @app.route('/api/companies', methods=['GET'])
-    @cross_origin()
-    def get_companies():
-        try:
-            companies = Job.query.with_entities(Job.company).distinct().all()
-            company_names = [company[0] for company in companies]
-            success_msg = 'Companies fetched successfully'
-            logger.info(success_msg)
-            return jsonify({'companies': company_names}), 200
-        except Exception as e:
-            logger.exception('An error occurred while fetching companies')
-            return jsonify({'error': 'An error occurred while fetching companies'}), 500
-
     @app.route('/api/show_jobs', methods=['GET'])
     @cross_origin()
     def show_jobs():
         try:
-            jobs = Job.query.all()
+            search_term = request.args.get('search', default='', type=str)
+            status_filter = request.args.get('status', default='', type=str)
+
+            query = Job.query
+
+            if search_term:
+                query = query.filter(
+                    (Job.title.ilike(f"%{search_term}%")) | 
+                    (Job.company.ilike(f"%{search_term}%"))
+                )
+            if status_filter:
+                query = query.filter(Job.application_status == ApplicationStatus(status_filter))
+
+            jobs = query.all()
 
             job_list = [
                 {
@@ -156,7 +162,7 @@ def init_routes(app):
             logger.exception('An error occurred while updating job status')
             return jsonify({'error': 'An error occurred while updating job status'}), 500
 
-    @app.route('/api/analytics', methods=['GET'])
+    @app.route('/api/analytics/', methods=['GET'])
     @cross_origin()
     def total_jobs_analytics():
         try:
