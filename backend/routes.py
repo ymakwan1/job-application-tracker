@@ -5,6 +5,7 @@ from flask_cors import cross_origin
 from sqlalchemy.exc import IntegrityError
 import pytz
 from datetime import datetime
+import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -90,9 +91,11 @@ def init_routes(app):
                 query = query.filter(Job.application_status == ApplicationStatus(status_filter))
 
             jobs = query.all()
+            
+            job_list = []
 
-            job_list = [
-                {
+            for job in jobs:
+                job_details = {
                     'job_id': job.job_id,
                     'title': job.title,
                     'company': job.company,
@@ -100,12 +103,23 @@ def init_routes(app):
                     'job_posting_url': job.job_posting_url,
                     'dashboard_url': job.dashboard_url,
                     'job_posting_source': job.job_posting_source,
-                    'date_applied': job.date_applied.isoformat(),
                     'referral': job.referral,
                     'referrer_name': job.referrer_name,
                     'application_status': job.application_status.value
-                } for job in jobs
-            ]
+                }
+
+                if job.application_status == ApplicationStatus.APPLIED:
+                    job_details['date'] = job.date_applied.isoformat()
+                elif job.application_status == ApplicationStatus.OA_RECEIVED:
+                    job_details['date'] = job.date_oa_received.isoformat()
+                elif job.application_status == ApplicationStatus.TECH_INTERVIEW:
+                    job_details['date'] = job.date_tech_interview.isoformat()
+                elif job.application_status == ApplicationStatus.REJECTED:
+                    job_details['date'] = job.date_rejected.isoformat()
+                elif job.application_status == ApplicationStatus.ACCEPTED:
+                    job_details['date'] = job.date_accepted.isoformat()
+
+                job_list.append(job_details)
 
             success_msg = 'Jobs fetched successfully'
             logger.info(success_msg)
@@ -146,6 +160,19 @@ def init_routes(app):
             if job:
                 if new_status and new_status in [status.value for status in ApplicationStatus]:
                     job.application_status = ApplicationStatus(new_status)
+                    current_time = datetime.now()
+                    est_timezone = pytz.timezone('America/New_York')
+                    current_est_time = current_time.astimezone(est_timezone).date()
+
+                    if new_status == ApplicationStatus.OA_RECEIVED.value:
+                        job.date_oa_received = current_est_time
+                    elif new_status == ApplicationStatus.TECH_INTERVIEW.value:
+                        job.date_tech_interview = current_est_time
+                    elif new_status == ApplicationStatus.REJECTED.value:
+                        job.date_rejected = current_est_time
+                    elif new_status == ApplicationStatus.ACCEPTED.value:
+                        job.date_accepted = current_est_time
+                        
                     db.session.commit()
                     success_msg = 'Job status updated successfully'
                     logger.info(success_msg)
@@ -217,11 +244,22 @@ def init_routes(app):
                     'job_posting_url': job.job_posting_url,
                     'dashboard_url': job.dashboard_url,
                     'job_posting_source': job.job_posting_source,
-                    'date_applied': job.date_applied.isoformat(),
                     'referral': job.referral,
                     'referrer_name': job.referrer_name,
                     'application_status': job.application_status.value
                 }
+
+                if job.application_status == ApplicationStatus.APPLIED:
+                    job_details['date'] = job.date_applied.isoformat()
+                elif job.application_status == ApplicationStatus.OA_RECEIVED:
+                    job_details['date'] = job.date_oa_received.isoformat()
+                elif job.application_status == ApplicationStatus.TECH_INTERVIEW:
+                    job_details['date'] = job.date_tech_interview.isoformat()
+                elif job.application_status == ApplicationStatus.REJECTED:
+                    job_details['date'] = job.date_rejected.isoformat()
+                elif job.application_status == ApplicationStatus.ACCEPTED:
+                    job_details['date'] = job.date_accepted.isoformat()
+
                 success_msg = 'Job details fetched successfully'
                 logger.info(success_msg)
                 return jsonify({'jobDetails': job_details}), 200
@@ -232,3 +270,55 @@ def init_routes(app):
         except Exception as e:
             logger.exception('An error occurred while fetching job details')
             return jsonify({'error': 'An error occurred while fetching job details'}), 500
+        
+    @app.route('/api/update_job/<string:job_id>', methods=['PUT'])
+    @cross_origin()
+    def update_job(job_id):
+        try:
+            data = request.get_json()
+
+            job = Job.query.filter_by(job_id=job_id).first()
+
+            if job:
+                job.job_id = data.get('jobId', job.job_id)
+                job.title = data.get('title', job.title)
+                job.company = data.get('company', job.company)
+                job.job_type = data.get('jobType', job.job_type)
+                job.job_posting_url = data.get('jobPostingUrl', job.job_posting_url)
+                job.dashboard_url = data.get('dashboardUrl', job.dashboard_url)
+                job.job_posting_source = data.get('jobPostingSource', job.job_posting_source)
+                job.referral = data.get('referral', job.referral)
+                job.referrer_name = data.get('referrerName', job.referrer_name)
+
+                new_status = data.get('application_status')
+                new_date_str = data.get('date')
+                #print(new_date)
+                if new_status and new_status in [status.value for status in ApplicationStatus]:
+                    job.application_status = ApplicationStatus(new_status)
+
+                    est = pytz.timezone('EST')
+                    new_date = datetime.datetime.strptime(new_date_str, '%Y-%m-%d').replace(tzinfo=est)
+
+                    if new_status == ApplicationStatus.APPLIED.value:
+                        job.date_applied = new_date
+                    elif new_status == ApplicationStatus.OA_RECEIVED.value:
+                        job.date_oa_received = new_date
+                    elif new_status == ApplicationStatus.TECH_INTERVIEW.value:
+                        job.date_tech_interview = new_date
+                    elif new_status == ApplicationStatus.REJECTED.value:
+                        job.date_rejected = new_date
+                    elif new_status == ApplicationStatus.ACCEPTED.value:
+                        job.date_accepted = new_date
+                
+                
+                db.session.commit()
+                success_msg = 'Job details updated successfully'
+                logger.info(success_msg)
+                return jsonify({'message': success_msg}), 200
+            else:
+                error_msg = 'Job with Job ID "{}" not found'.format(job_id)
+                logger.error(error_msg)
+                return jsonify({'error': error_msg}), 404
+        except Exception as e:
+            logger.exception('An error occurred while updating job details')
+            return jsonify({'error': 'An error occurred while updating job details'}), 500
