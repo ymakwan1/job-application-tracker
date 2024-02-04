@@ -18,9 +18,9 @@ import MuiAlert from "@mui/material/Alert";
 import apiService from "../apiService";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
-import { jobTitles, platformTypes } from "../constants";
+import { jobTitles, platformTypes, applicationStatusOptions } from "../constants";
 import dayjs from 'dayjs'
 
 const JobDetails = () => {
@@ -30,12 +30,14 @@ const JobDetails = () => {
     const [appliedDate, setAppliedDate] = useState(null);
     const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
     
+    const history = useNavigate();
+
     useEffect(() => {
         const fetchJobDetails = async () => {
             try {
                 const response = await apiService.get(`/job_details/${job_id}`);
                 setJobDetails(response.data.jobDetails);
-                setAppliedDate(dayjs(response.data.jobDetails.date_applied));
+                setAppliedDate(dayjs(response.data.jobDetails.date));
             } catch (error) {
                 console.error('Error fetching job details:', error);
             }
@@ -47,33 +49,41 @@ const JobDetails = () => {
     const updateJobDetails = async () => {
         try {
           if (jobDetails) {
+            console.log(jobDetails)
             await apiService.put(`/update_job/${job_id}`, {
-                job_id: jobDetails.job_id,
+                jobId: jobDetails.job_id,
                 title: jobDetails.title,
                 company: jobDetails.company,
                 job_type: jobDetails.job_type,
-                job_posting_url: jobDetails.job_posting_url,
-                dashboard_url: jobDetails.dashboard_url,
+                jobPostingUrl: jobDetails.job_posting_url,
+                dashboardUrl: jobDetails.dashboard_url,
                 job_posting_source: jobDetails.job_posting_source,
-                date_applied: dayjs(appliedDate).format('YYYY-MM-DD'),
+                date: dayjs(appliedDate).format('YYYY-MM-DD'),
                 referral: jobDetails.referral,
                 referrer_name: jobDetails.referrer_name,
+                application_status: jobDetails.application_status
             });
             console.log('Job details updated successfully');
             setSuccessSnackbarOpen(true);
+            const response = await apiService.get(`/job_details/${jobDetails.job_id}`);
+            setJobDetails(response.data.jobDetails);
+            setAppliedDate(dayjs(response.data.jobDetails.date));
           }
         } catch (error) {
           console.error('Error updating job details:', error);
         }
     };
 
+    
+
     const handleSnackbarClose = () => {
         setSuccessSnackbarOpen(false);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        updateJobDetails();
+        await updateJobDetails();
+        history(`/job_details/${jobDetails.job_id}`);
     };
     if (!jobDetails) {
         return <p>Loading ...</p>;
@@ -222,6 +232,29 @@ const JobDetails = () => {
                             </FormControl>
                         </Grid>
                         <Grid item xs={12}>
+                        <InputLabel>Application Status</InputLabel>
+                                <FormControl variant="outlined" fullWidth margin="normal">
+                                    <Select
+                                        value={jobDetails.application_status}
+                                        onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, application_status: e.target.value }))}
+                                        MenuProps={{
+                                            PaperProps: {
+                                                style: {
+                                                    maxHeight: 200,
+                                                    overflow: 'auto',
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        {applicationStatusOptions.map((status, index) => (
+                                            <MenuItem key={index} value={status}>
+                                                {status}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        <Grid item xs={12}>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -254,7 +287,7 @@ const JobDetails = () => {
                 </form>
                 <Snackbar
                     open={successSnackbarOpen}
-                    autoHideDuration={6000}
+                    autoHideDuration={5000}
                     onClose={handleSnackbarClose}
                 >
                     <MuiAlert
