@@ -32,3 +32,11 @@ export const platformTypes = [
     'Twitter',
     'Other'
   ];
+
+export const applicationStatusOptions = [
+  'Applied',
+  'OA Received',
+  'Tech Interview',
+  'Rejected',
+  'Accepted'
+]
