@@ -4,7 +4,6 @@ from models import db, Job, ApplicationStatus
 from flask_cors import cross_origin
 from sqlalchemy.exc import IntegrityError
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -157,7 +156,7 @@ def init_routes(app):
             logger.exception('An error occurred while updating job status')
             return jsonify({'error': 'An error occurred while updating job status'}), 500
 
-    @app.route('/api/analytics/', methods=['GET'])
+    @app.route('/api/analytics', methods=['GET'])
     @cross_origin()
     def total_jobs_analytics():
         try:
