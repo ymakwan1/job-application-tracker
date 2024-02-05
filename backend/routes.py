@@ -5,7 +5,7 @@ from flask_cors import cross_origin
 from sqlalchemy.exc import IntegrityError
 import pytz
 from datetime import datetime
-import datetime
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -109,6 +109,9 @@ def init_routes(app):
                 }
 
                 if job.application_status == ApplicationStatus.APPLIED:
+                    date_applied = job.date_applied
+                    counter_days = (datetime.now().date() - date_applied).days
+                    job_details['counter_days'] = counter_days
                     job_details['date'] = job.date_applied.isoformat()
                 elif job.application_status == ApplicationStatus.OA_RECEIVED:
                     job_details['date'] = job.date_oa_received.isoformat()
@@ -297,7 +300,7 @@ def init_routes(app):
                     job.application_status = ApplicationStatus(new_status)
 
                     est = pytz.timezone('EST')
-                    new_date = datetime.datetime.strptime(new_date_str, '%Y-%m-%d').replace(tzinfo=est)
+                    new_date = datetime.strptime(new_date_str, '%Y-%m-%d').replace(tzinfo=est)
 
                     if new_status == ApplicationStatus.APPLIED.value:
                         job.date_applied = new_date
