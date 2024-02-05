@@ -109,10 +109,10 @@ def init_routes(app):
                 }
 
                 if job.application_status == ApplicationStatus.APPLIED:
-                    date_applied = job.date_applied
+                    date_applied = job.date_applied.date()
                     counter_days = (datetime.now().date() - date_applied).days
                     job_details['counter_days'] = counter_days
-                    job_details['date'] = job.date_applied.isoformat()
+                    job_details['date'] = date_applied.isoformat()
                 elif job.application_status == ApplicationStatus.OA_RECEIVED:
                     job_details['date'] = job.date_oa_received.isoformat()
                 elif job.application_status == ApplicationStatus.TECH_INTERVIEW:
