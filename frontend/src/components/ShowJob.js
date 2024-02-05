@@ -204,6 +204,7 @@ const ShowJob = () => {
                   <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Application Status</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Delete / Edit</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Days</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -229,11 +230,11 @@ const ShowJob = () => {
                           value={job.application_status}
                           onChange={(e) => handleStatusChange(job.job_id, e.target.value)}
                         >
-                          <MenuItem value="Applied">Applied</MenuItem>
-                          <MenuItem value="OA Received">OA Received</MenuItem>
-                          <MenuItem value="Tech Interview">Tech Interview</MenuItem>
-                          <MenuItem value="Rejected">Rejected</MenuItem>
-                          <MenuItem value="Accepted">Accepted</MenuItem>
+                          {applicationStatusOptions.map((status, index) => (
+                            <MenuItem key={index} value={status}>
+                                {status}
+                            </MenuItem>
+                          ))}
                         </Select>
                       </FormControl>
                     </TableCell>
@@ -254,6 +255,7 @@ const ShowJob = () => {
                         <EditIcon />
                       </IconButton>
                     </TableCell>
+                    <TableCell style={{ color: theme.palette.text.primary }}>{job.counter_days}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
