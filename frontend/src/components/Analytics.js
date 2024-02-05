@@ -64,7 +64,7 @@ const Analytics = () => {
       justifyContent="center"
       alignItems="center"
       flexDirection="column"
-      height="100vh"
+      minHeight="calc(100vh - 64px)"
       width="100%"
       bgcolor={theme.palette.background.default}
     >
@@ -75,10 +75,10 @@ const Analytics = () => {
           width: "600px",
           maxWidth: "100%",
           margin: "auto",
-          backgroundColor: theme.palette.background.paper, 
+          backgroundColor: theme.palette.background.paper,
           borderRadius: "8px",
           boxShadow: theme.shadows[5],
-          marginBottom: "20px", 
+          marginBottom: "20px",
         }}
       >
         <Typography variant="h5" gutterBottom>
@@ -98,14 +98,13 @@ const Analytics = () => {
         </Box>
       </Paper>
 
-      {/* Paper for Graph */}
       <Paper
         elevation={3}
         style={{
           padding: "30px",
-          width: "1000px", 
-          maxWidth: "100%",
-          margin: "auto",
+          width: "80%",
+          maxWidth: "1000px",
+          margin: "20px auto",
           backgroundColor: theme.palette.background.paper,
           borderRadius: "8px",
           boxShadow: theme.shadows[5],
@@ -116,35 +115,35 @@ const Analytics = () => {
         </Typography>
         {dailyJobApplications.length > 0 ? (
           <Plot
-          data={[
-            {
-              x: dailyJobApplications.map((entry) => entry.date),
-              y: dailyJobApplications.map((entry) => entry.applications),
-              type: "line",
-              marker: { color: "blue" },
-            },
-          ]}
-          layout={{
-            width: 900, 
-            height: 400,
-            title: "Daily Job Applications",
-            xaxis: { title: "Date", type: "category" },
-            yaxis: {
-              title: "Applications",
-              tickmode: "linear",
-              tick0: 0, 
-              dtick: 1, 
-            },
-            margin: { t: 50, l: "auto", r: "auto", b: 50 },
-            bargap: 0, 
-            bargroupgap: 0.1,
-          }}
-        />
+            data={[
+              {
+                x: dailyJobApplications.map((entry) => entry.date),
+                y: dailyJobApplications.map((entry) => entry.applications),
+                type: "line",
+                marker: { color: "blue" },
+              },
+            ]}
+            layout={{
+              width: 900,
+              height: 400,
+              title: "Daily Job Applications",
+              xaxis: { title: "Date", type: "category" },
+              yaxis: {
+                title: "Applications",
+                tickmode: "linear",
+                tick0: 0,
+                dtick: 1,
+              },
+              margin: { t: 50, l: "auto", r: "auto", b: 50 },
+              bargap: 0,
+              bargroupgap: 0.1,
+            }}
+          />
         ) : (
           <Typography variant="body1" color="textSecondary">
             No data available for daily job applications.
           </Typography>
-        )}     
+        )}
       </Paper>
     </Box>
   );
