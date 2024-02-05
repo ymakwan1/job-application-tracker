@@ -40,8 +40,8 @@ const JobForm = ({ onSubmit }) => {
     dateApplied: dayjs(),
     referral: false,
     referrerName: '',
-    jobLocation: '',
-    applicationStatus: ''
+    // jobLocation: '',
+    // applicationStatus: ''
   });
 
   const handleInputChange = useCallback((field, value) => {
@@ -161,8 +161,8 @@ const JobForm = ({ onSubmit }) => {
         dateApplied: dayjs(),
         referral: false,
         referrerName: '',
-        jobLocation: '',
-        applicationStatus: ''
+        // jobLocation: '',
+        // applicationStatus: ''
       });
 
       setShowSuccess(true);
@@ -186,8 +186,8 @@ const JobForm = ({ onSubmit }) => {
         dateApplied: null,
         referral: false,
         referrerName: '',
-        jobLocation: '',
-        applicationStatus: ''
+        // jobLocation: '',
+        // applicationStatus: ''
       });
     }
   }, [formState, onSubmit]);
@@ -333,7 +333,7 @@ const JobForm = ({ onSubmit }) => {
                   />
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              {/* <Grid item xs={12} sm={6}>
                 <FormControl variant="outlined" fullWidth>
                   <InputLabel>Location</InputLabel>
                   <Select
@@ -376,7 +376,7 @@ const JobForm = ({ onSubmit }) => {
                     )}
                   </Select>
                 </FormControl>
-              </Grid>
+              </Grid> */}
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
