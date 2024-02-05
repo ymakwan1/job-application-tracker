@@ -19,7 +19,8 @@ import {
   Grid,
   CircularProgress,
   IconButton,
-  InputLabel
+  InputLabel,
+  Tooltip,
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import apiService from '../apiService';
@@ -27,7 +28,6 @@ import { Link } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit'; 
 import { applicationStatusOptions } from '../constants';
-
 
 const ShowJob = () => {
   const theme = useTheme(); 
@@ -112,7 +112,6 @@ const ShowJob = () => {
     setStatusFilter(event.target.value);
   };
 
-  
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
@@ -130,8 +129,8 @@ const ShowJob = () => {
         elevation={3}
         style={{
           padding: '30px',
-          width: '1400px',
-          maxWidth: '100%',
+          width: '100%',
+          maxWidth: '1400px',
           margin: 'auto',
           backgroundColor: theme.palette.background.paper,
         }}
@@ -190,7 +189,7 @@ const ShowJob = () => {
               : 'No jobs match the search criteria.'}
           </Typography>
         ) : (
-          <TableContainer component={Paper} elevation={0}>
+          <TableContainer component={Paper} elevation={0} style={{ marginTop: '20px' }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -203,7 +202,7 @@ const ShowJob = () => {
                   <TableCell style={{ color: theme.palette.text.primary }}>Dashboard</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Application Status</TableCell>
-                  <TableCell style={{ color: theme.palette.text.primary }}>Delete / Edit</TableCell>
+                  <TableCell style={{ color: theme.palette.text.primary }}>Actions</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Days</TableCell>
                 </TableRow>
               </TableHead>
@@ -223,7 +222,7 @@ const ShowJob = () => {
                     </TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.referral ? 'Yes' : 'No'}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>
-                      <FormControl variant="outlined">
+                      <FormControl variant="outlined" size="small">
                         <Select
                           labelId={`status-label-${job.job_id}`}
                           id={`status-${job.job_id}`}
@@ -239,21 +238,23 @@ const ShowJob = () => {
                       </FormControl>
                     </TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>
-                      <IconButton
-                        color="secondary"
-                        onClick={() => handleDelete(job.job_id)}
-                        title="Delete"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                      <IconButton
-                        color="primary"
-                        component={Link}
-                        to={`/job_details/${job.job_id}`}
-                        title="Edit"
-                      >
-                        <EditIcon />
-                      </IconButton>
+                      <Tooltip title="Delete">
+                        <IconButton
+                          color="secondary"
+                          onClick={() => handleDelete(job.job_id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit">
+                        <IconButton
+                          color="primary"
+                          component={Link}
+                          to={`/job_details/${job.job_id}`}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.counter_days}</TableCell>
                   </TableRow>
