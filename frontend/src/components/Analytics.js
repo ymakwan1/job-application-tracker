@@ -38,7 +38,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await apiService.get("/analytics");
+        const response = await apiService.get("/analytics/");
 
         setTotalJobs(response.data.totalJobs);
         setTotalRejectedJobs(response.data.totalRejectedJobs);
