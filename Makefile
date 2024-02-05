@@ -8,7 +8,7 @@ build:
 	$(DOCKER_COMPOSE) build
 
 up:
-	$(DOCKER_COMPOSE) up
+	$(DOCKER_COMPOSE) up -d
 
 down:
 	$(DOCKER_COMPOSE) down
@@ -24,3 +24,11 @@ ps:
 
 stop:
 	$(DOCKER_COMPOSE) stop
+
+start-docker:
+	open --background -a Docker
+
+clean:
+	$(DOCKER_COMPOSE) down -v --remove-orphans
+	docker rm -f $(shell docker ps -aq)
+	docker rmi -f $(shell docker images -aq)
