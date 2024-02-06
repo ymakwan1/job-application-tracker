@@ -203,7 +203,6 @@ const ShowJob = () => {
                   <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Application Status</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Actions</TableCell>
-                  <TableCell style={{ color: theme.palette.text.primary }}>Days</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -256,7 +255,6 @@ const ShowJob = () => {
                         </IconButton>
                       </Tooltip>
                     </TableCell>
-                    <TableCell style={{ color: theme.palette.text.primary }}>{job.counter_days}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
