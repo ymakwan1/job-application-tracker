@@ -1,6 +1,5 @@
 
 export const jobTitles = [
-    'Select',
     'SWE',
     'SDE',
     'Full Stack',
@@ -18,7 +17,6 @@ export const jobTitles = [
   ];
 
 export const platformTypes = [
-    'Select',
     'Company Website',
     'LinkedIn',
     'Indeed',
