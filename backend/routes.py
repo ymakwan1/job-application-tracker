@@ -3,7 +3,6 @@ from flask import jsonify, request
 from models import db, Job, ApplicationStatus
 from flask_cors import cross_origin
 from sqlalchemy.exc import IntegrityError
-import pytz
 from datetime import datetime
 
 
@@ -12,12 +11,7 @@ logger = logging.getLogger(__name__)
 
 def validate_job_data(data):
     required_keys = ['jobId', 'title', 'company', 'jobType', 'jobPostingUrl', 'dashboardUrl', 'jobPostingSource', 'dateApplied', 'referral', 'referrerName']
-    data_keys_list = list(data.keys())
-
-    if data_keys_list == required_keys:
-        return True
-    else:
-        return False
+    return set(required_keys).issubset(data.keys())
 
 def init_routes(app):
     @app.route('/api/jobs', methods=['POST'])
@@ -26,7 +20,6 @@ def init_routes(app):
         try:
             data = request.get_json()
 
-            # Validate job data
             if not validate_job_data(data):
                 error_msg = 'Invalid job data provided. Required keys: {}'.format(', '.join(required_keys))
                 logger.error(error_msg)
@@ -34,15 +27,10 @@ def init_routes(app):
 
             job_id = data['jobId']
 
-            # Check if job_id already exists
             if Job.query.filter_by(job_id=job_id).first():
                 error_msg = 'Job with Job ID "{}" already exists'.format(job_id)
                 logger.error(error_msg)
                 return jsonify({'error': error_msg}), 400
-
-            est_timezone = pytz.timezone('America/New_York')
-            est_now = datetime.now(est_timezone)
-            est_date = est_now.date()
 
             new_job = Job(
                 job_id=job_id,
@@ -52,7 +40,7 @@ def init_routes(app):
                 job_posting_url=data['jobPostingUrl'],
                 dashboard_url=data['dashboardUrl'],
                 job_posting_source=data['jobPostingSource'],
-                date_applied=est_date,
+                date_applied=datetime.now().date(),
                 referral=data['referral'],
                 referrer_name=data['referrerName'] if data['referral'] else None,
                 application_status=ApplicationStatus.APPLIED
@@ -108,19 +96,8 @@ def init_routes(app):
                     'application_status': job.application_status.value
                 }
 
-                if job.application_status == ApplicationStatus.APPLIED:
-                    date_applied = job.date_applied.date()
-                    counter_days = (datetime.now().date() - date_applied).days
-                    job_details['counter_days'] = counter_days
-                    job_details['date'] = date_applied.isoformat()
-                elif job.application_status == ApplicationStatus.OA_RECEIVED:
-                    job_details['date'] = job.date_oa_received.isoformat()
-                elif job.application_status == ApplicationStatus.TECH_INTERVIEW:
-                    job_details['date'] = job.date_tech_interview.isoformat()
-                elif job.application_status == ApplicationStatus.REJECTED:
-                    job_details['date'] = job.date_rejected.isoformat()
-                elif job.application_status == ApplicationStatus.ACCEPTED:
-                    job_details['date'] = job.date_accepted.isoformat()
+                date_field = 'date_' + job.application_status.value.lower()
+                job_details['date'] = getattr(job, date_field).date().isoformat()
 
                 job_list.append(job_details)
 
@@ -164,18 +141,10 @@ def init_routes(app):
                 if new_status and new_status in [status.value for status in ApplicationStatus]:
                     job.application_status = ApplicationStatus(new_status)
                     current_time = datetime.now()
-                    est_timezone = pytz.timezone('America/New_York')
-                    current_est_time = current_time.astimezone(est_timezone).date()
 
-                    if new_status == ApplicationStatus.OA_RECEIVED.value:
-                        job.date_oa_received = current_est_time
-                    elif new_status == ApplicationStatus.TECH_INTERVIEW.value:
-                        job.date_tech_interview = current_est_time
-                    elif new_status == ApplicationStatus.REJECTED.value:
-                        job.date_rejected = current_est_time
-                    elif new_status == ApplicationStatus.ACCEPTED.value:
-                        job.date_accepted = current_est_time
-                        
+                    date_field = 'date_' + new_status.lower()
+                    setattr(job, date_field, current_time)
+                    
                     db.session.commit()
                     success_msg = 'Job status updated successfully'
                     logger.info(success_msg)
@@ -213,7 +182,7 @@ def init_routes(app):
 
             daily_job_applications_list = [
                 {
-                    'date': result.date.date().isoformat(),
+                    'date': result.date.isoformat(),
                     'applications': result.applications
                 } for result in daily_job_applications
             ]
@@ -252,16 +221,8 @@ def init_routes(app):
                     'application_status': job.application_status.value
                 }
 
-                if job.application_status == ApplicationStatus.APPLIED:
-                    job_details['date'] = job.date_applied.isoformat()
-                elif job.application_status == ApplicationStatus.OA_RECEIVED:
-                    job_details['date'] = job.date_oa_received.isoformat()
-                elif job.application_status == ApplicationStatus.TECH_INTERVIEW:
-                    job_details['date'] = job.date_tech_interview.isoformat()
-                elif job.application_status == ApplicationStatus.REJECTED:
-                    job_details['date'] = job.date_rejected.isoformat()
-                elif job.application_status == ApplicationStatus.ACCEPTED:
-                    job_details['date'] = job.date_accepted.isoformat()
+                date_field = 'date_' + job.application_status.value.lower()
+                job_details['date'] = getattr(job, date_field).isoformat()
 
                 success_msg = 'Job details fetched successfully'
                 logger.info(success_msg)
@@ -295,24 +256,12 @@ def init_routes(app):
 
                 new_status = data.get('application_status')
                 new_date_str = data.get('date')
-                #print(new_date)
+
                 if new_status and new_status in [status.value for status in ApplicationStatus]:
                     job.application_status = ApplicationStatus(new_status)
 
-                    est = pytz.timezone('EST')
-                    new_date = datetime.strptime(new_date_str, '%Y-%m-%d').replace(tzinfo=est)
-
-                    if new_status == ApplicationStatus.APPLIED.value:
-                        job.date_applied = new_date
-                    elif new_status == ApplicationStatus.OA_RECEIVED.value:
-                        job.date_oa_received = new_date
-                    elif new_status == ApplicationStatus.TECH_INTERVIEW.value:
-                        job.date_tech_interview = new_date
-                    elif new_status == ApplicationStatus.REJECTED.value:
-                        job.date_rejected = new_date
-                    elif new_status == ApplicationStatus.ACCEPTED.value:
-                        job.date_accepted = new_date
-                
+                    date_field = 'date_' + new_status.lower()
+                    setattr(job, date_field, datetime.strptime(new_date_str, '%Y-%m-%d'))
                 
                 db.session.commit()
                 success_msg = 'Job details updated successfully'
