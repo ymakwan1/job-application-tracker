@@ -142,7 +142,31 @@ const JobDetails = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <FormControl variant="outlined" fullWidth margin="normal">
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        select
+                        label="Job Type"
+                        defaultValue={jobDetails.job_type}
+                        SelectProps={{ 
+                            MenuProps: {
+                                PaperProps: {
+                                    style: {
+                                        maxHeight: 200,
+                                        overflowY: 'auto',
+                                    }
+                                }
+                            }
+                        }}
+                    >
+                        {jobTitles.map((title, index) => (
+                          <MenuItem key={index} value={title}>
+                              {title}
+                          </MenuItem>
+                      ))}
+                    </TextField>
+                  {/* <FormControl variant="outlined" fullWidth margin="normal">
                   <InputLabel id="job-type-label">Job Type</InputLabel>
                     <Select 
                         value={jobDetails.job_type}
@@ -163,7 +187,7 @@ const JobDetails = () => {
                           </MenuItem>
                       ))}
                     </Select>
-                  </FormControl>
+                  </FormControl> */}
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField
