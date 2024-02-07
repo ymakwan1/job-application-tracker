@@ -6,11 +6,9 @@ import {
   Paper,
   Grid,
   FormControl,
-  Select,
   MenuItem,
   TextField,
   useTheme,
-  InputLabel,
   FormControlLabel,
   Checkbox,
   Snackbar,
@@ -93,11 +91,11 @@ const JobDetails = () => {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="100vh"
+        minHeight="90vh"
         width="100%"
-        style={{ backgroundColor: theme.palette.background.default, padding: '20px' }}
+        style={{ backgroundColor: theme.palette.background.default, padding: '10px' }}
       >
-        <Box maxWidth="800px" width="100%">
+        <Box maxWidth="1200px" width="100%">
           <Paper
             elevation={3}
             style={{
@@ -106,7 +104,7 @@ const JobDetails = () => {
               backgroundColor: theme.palette.background.paper,
             }}
           >
-            <Typography variant="h6" gutterBottom align="center">
+            <Typography variant="h5" gutterBottom align="center">
               Job Details for Job ID: {job_id}
             </Typography>
             <form onSubmit={handleSubmit}>
@@ -149,6 +147,7 @@ const JobDetails = () => {
                         select
                         label="Job Type"
                         defaultValue={jobDetails.job_type}
+                        onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, job_type: e.target.value }))}
                         SelectProps={{ 
                             MenuProps: {
                                 PaperProps: {
@@ -166,28 +165,6 @@ const JobDetails = () => {
                           </MenuItem>
                       ))}
                     </TextField>
-                  {/* <FormControl variant="outlined" fullWidth margin="normal">
-                  <InputLabel id="job-type-label">Job Type</InputLabel>
-                    <Select 
-                        value={jobDetails.job_type}
-                        labelId="job-type-label"
-                        onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, job_type: e.target.value }))}
-                        MenuProps={{
-                            PaperProps: {
-                                style: {
-                                    maxHeight: 200,
-                                    overflowY: 'auto',
-                                },
-                            },
-                        }}
-                    >
-                      {jobTitles.map((title, index) => (
-                          <MenuItem key={index} value={title}>
-                              {title}
-                          </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl> */}
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField
@@ -199,8 +176,121 @@ const JobDetails = () => {
                         onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, job_posting_url: e.target.value }))}
                     />
                 </Grid>
-                {/* Additional grid items for other fields */}
-              </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        label="Dashboard URL"
+                        value={jobDetails.dashboard_url}
+                        onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, dashboard_url: e.target.value }))}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        select
+                        label="Job Posting Source"
+                        defaultValue={jobDetails.job_posting_source}
+                        onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, job_posting_source: e.target.value }))}
+                        SelectProps={{ 
+                            MenuProps: {
+                                PaperProps: {
+                                    style: {
+                                        maxHeight: 200,
+                                        overflowY: 'auto',
+                                    }
+                                }
+                            }
+                        }}
+                    >
+                        {platformTypes.map((title, index) => (
+                          <MenuItem key={index} value={title}>
+                              {title}
+                          </MenuItem>
+                      ))}
+                    </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6} style={{ display: 'flex', flexDirection: 'column' }}>
+                    <FormControl variant="outlined" fullWidth margin="normal">
+                    <DatePicker
+                        label="Date"
+                        textField={(props) => (
+                            <TextField
+                                {...props}
+                                variant="outlined"
+                                format="MM-dd-yyyy"
+                                label="Date"
+                                value={dayjs(appliedDate).format('MM-DD-YYYY')}
+                            />
+                        )}
+                        value={appliedDate}
+                        onChange={(date) => setAppliedDate(date)}
+                    />
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        select
+                        label="Application Status"
+                        defaultValue={jobDetails.application_status}
+                        onChange={(e) => setJobDetails((prevJobDetails) => ({ ...prevJobDetails, application_status: e.target.value }))}
+                        SelectProps={{ 
+                            MenuProps: {
+                                PaperProps: {
+                                    style: {
+                                        maxHeight: 200,
+                                        overflowY: 'auto',
+                                    }
+                                }
+                            }
+                        }}
+                    >
+                        {applicationStatusOptions.map((title, index) => (
+                          <MenuItem key={index} value={title}>
+                              {title}
+                          </MenuItem>
+                      ))}
+                    </TextField>
+                </Grid>
+        <Grid item xs={12}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={jobDetails.referral}
+                onChange={(e) =>
+                  setJobDetails((prevJobDetails) => ({
+                    ...prevJobDetails,
+                    referral: e.target.checked
+                  }))
+                }
+                color="primary"
+              />
+            }
+            label="Referral"
+          />
+          {jobDetails.referral && (
+            <TextField
+              variant="outlined"
+              label="Referrer Name"
+              fullWidth
+              margin="normal"
+              value={jobDetails.referrer_name || ''}
+              onChange={(e) =>
+                setJobDetails((prevJobDetails) => ({
+                  ...prevJobDetails,
+                  referrer_name: e.target.value
+                }))
+              }
+            />
+          )}
+        </Grid>
+      </Grid>
               <Grid item xs={12}>
                 <Button type="submit" variant="contained" color="primary" fullWidth>
                   Update Job Details

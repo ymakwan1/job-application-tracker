@@ -182,7 +182,7 @@ def init_routes(app):
 
             daily_job_applications_list = [
                 {
-                    'date': result.date.isoformat(),
+                    'date': result.date.date().isoformat(),
                     'applications': result.applications
                 } for result in daily_job_applications
             ]

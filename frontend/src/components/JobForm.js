@@ -4,15 +4,14 @@ import {
   Button,
   Grid,
   Paper,
-  Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Checkbox,
   FormControlLabel,
   Box,
   Snackbar,
-  useTheme
+  useTheme,
+  Typography
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -20,7 +19,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import MuiAlert from '@mui/material/Alert';
 import dayjs from 'dayjs';
 import apiService from '../apiService';
-import { jobTitles, platformTypes, usStates, applicationStatusOptions } from '../constants';
+import { jobTitles, platformTypes } from '../constants';
 
 const CustomAlert = React.forwardRef(function CustomAlert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -199,20 +198,23 @@ const JobForm = ({ onSubmit }) => {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="100vh"
+        minHeight="90vh"
         width="100%"
         style={{ backgroundColor: theme.palette.background.default }}
       >
         <Paper
           elevation={3}
           style={{
-            padding: '30px',
-            maxWidth: '800px',
+            padding: '60px',
+            maxWidth: '1100px',
             margin: 'auto',
             color: theme.palette.text.primary,
             backgroundColor: theme.palette.background.paper,
           }}
         >
+          <Typography align='center' gutterBottom variant='h5' >
+            Job Form
+          </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
@@ -241,6 +243,7 @@ const JobForm = ({ onSubmit }) => {
                 <TextField
                   label="Company"
                   variant="outlined"
+                  margin='normal'
                   fullWidth
                   value={formState.company}
                   onChange={(e) => handleInputChange('company', e.target.value)}
@@ -249,32 +252,36 @@ const JobForm = ({ onSubmit }) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel>Job Type</InputLabel>
-                  <Select
-                    value={formState.jobType}
-                    onChange={(e) => handleInputChange('jobType', e.target.value)}
-                    label="Job Type"
-                    error={!!jobTypeError}
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: 200, 
-                          overflowY: 'auto', 
-                        },
-                      },
-                    }}
-                  >
-                    {jobTitles.map((title, index) =>
+                  <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        select
+                        label="Job Type"
+                        value={formState.jobType}
+                        onChange={(e) => handleInputChange('jobType', e.target.value)}
+                        error={!!jobTypeError}
+                        SelectProps={{ 
+                          MenuProps: {
+                              PaperProps: {
+                                  style: {
+                                      maxHeight: 200,
+                                      overflowY: 'auto',
+                                  }
+                              }
+                          }
+                      }}
+                    >
+                      {jobTitles.map((title, index) =>
                       <MenuItem key={index} value={title}>{title}</MenuItem>
                     )}
-                  </Select>
-                </FormControl>
+                  </TextField>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   label="Job Posting URL"
                   variant="outlined"
+                  margin='normal'
                   fullWidth
                   value={formState.jobPostingUrl}
                   onChange={(e) => handleInputChange('jobPostingUrl', e.target.value)}
@@ -286,6 +293,7 @@ const JobForm = ({ onSubmit }) => {
                 <TextField
                   label="Dashboard URL"
                   variant="outlined"
+                  margin='normal'
                   fullWidth
                   value={formState.dashboardUrl}
                   onChange={(e) => handleInputChange('dashboardUrl', e.target.value)}
@@ -294,34 +302,36 @@ const JobForm = ({ onSubmit }) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel>Job Posting Source</InputLabel>
-                  <Select
+                  <TextField
                     value={formState.jobPostingSource}
                     onChange={(e) => handleInputChange('jobPostingSource', e.target.value)}
                     label="Job Posting Source"
+                    fullWidth
+                    margin='normal'
                     error={!!jobPostingSourceError}
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: 200, 
-                          overflowY: 'auto', 
-                        },
-                      },
-                    }}
+                    SelectProps={{ 
+                      MenuProps: {
+                          PaperProps: {
+                              style: {
+                                  maxHeight: 200,
+                                  overflowY: 'auto',
+                              }
+                          }
+                      }
+                  }}
                   >
                     {platformTypes.map((title, index) =>
                       <MenuItem key={index} value={title}>{title}</MenuItem>
                     )}
-                  </Select>
-                </FormControl>
+                  </TextField>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl variant="outlined" fullWidth>
+                <FormControl variant="outlined" margin='normal' fullWidth>
                   <DatePicker
+                    label="Date"
                     value={formState.dateApplied}
                     onChange={(newValue) => handleInputChange('dateApplied', newValue)}
-                    renderInput={(params) =>
+                    textField={(params) =>
                       <TextField
                         {...params}
                         variant="outlined"

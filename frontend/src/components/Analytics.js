@@ -64,7 +64,7 @@ const Analytics = () => {
       justifyContent="center"
       alignItems="center"
       flexDirection="column"
-      minHeight="calc(100vh - 64px)"
+      minHeight="100vh"
       width="100%"
       bgcolor={theme.palette.background.default}
     >
@@ -88,7 +88,6 @@ const Analytics = () => {
           display="flex"
           justifyContent="space-between"
           alignItems="center"
-          flexDirection="row"
         >
           <Counter label="Jobs Applied" value={totalJobs} />
           <Counter label="Rejected Jobs" value={totalRejectedJobs} />
