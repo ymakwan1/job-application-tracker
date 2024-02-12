@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Typography, Paper, Box, useTheme } from "@mui/material";
-import Plot from "react-plotly.js";
 import apiService from "../apiService";
+import { LineChart } from '@mui/x-charts/LineChart';
 
 const Counter = ({ label, value }) => {
   const [count, setCount] = useState(0);
@@ -34,12 +34,10 @@ const Analytics = () => {
   const [totalOAReceived, setTotalOAReceived] = useState(0);
   const [totalTechInterviewReceived, setTotalTechInterviewReceived] = useState(0);
   const [dailyJobApplications, setDailyJobApplications] = useState([]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await apiService.get("/analytics/");
-
         setTotalJobs(response.data.totalJobs);
         setTotalRejectedJobs(response.data.totalRejectedJobs);
         setTotalAcceptedJobs(response.data.totalAcceptedJobs);
@@ -113,30 +111,51 @@ const Analytics = () => {
           Daily Job Applications
         </Typography>
         {dailyJobApplications.length > 0 ? (
-          <Plot
-            data={[
+          // <Plot
+          //   data={[
+          //     {
+          //       x: dailyJobApplications.map((entry) => entry.date),
+          //       y: dailyJobApplications.map((entry) => entry.applications),
+          //       type: "line",
+          //       marker: { color: "blue" },
+          //     },
+          //   ]}
+          //   layout={{
+          //     width: 900,
+          //     height: 400,
+          //     title: "Daily Job Applications",
+          //     xaxis: { title: "Date", type: "category" },
+          //     yaxis: {
+          //       title: "Applications",
+          //       tickmode: "linear",
+          //       tick0: 0,
+          //       dtick: 1,
+          //     },
+          //     margin: { t: 50, l: "auto", r: "auto", b: 50 },
+          //     bargap: 0,
+          //     bargroupgap: 0.1,
+          //   }}
+          // />
+          <LineChart
+            xAxis={[
               {
-                x: dailyJobApplications.map((entry) => entry.date),
-                y: dailyJobApplications.map((entry) => entry.applications),
-                type: "line",
-                marker: { color: "blue" },
+                data: dailyJobApplications.map((entry) => entry.date),
+                scaleType: 'point',
+                label: 'Dates'
               },
             ]}
-            layout={{
-              width: 900,
-              height: 400,
-              title: "Daily Job Applications",
-              xaxis: { title: "Date", type: "category" },
-              yaxis: {
-                title: "Applications",
-                tickmode: "linear",
-                tick0: 0,
-                dtick: 1,
-              },
-              margin: { t: 50, l: "auto", r: "auto", b: 50 },
-              bargap: 0,
-              bargroupgap: 0.1,
-            }}
+            yAxis={[
+              { id: 'linearAxis', scaleType: 'linear' },
+            ]}
+            series={[
+              {
+                data: dailyJobApplications.map((entry) => entry.applications),
+                area: true,
+                label: 'Applications'
+              }
+            ]}
+            height={400}
+            width={750}
           />
         ) : (
           <Typography variant="body1" color="textSecondary">

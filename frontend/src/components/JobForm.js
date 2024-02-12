@@ -303,24 +303,26 @@ const JobForm = ({ onSubmit }) => {
               </Grid>
               <Grid item xs={12} sm={6}>
                   <TextField
-                    value={formState.jobPostingSource}
-                    onChange={(e) => handleInputChange('jobPostingSource', e.target.value)}
-                    label="Job Posting Source"
-                    fullWidth
-                    margin='normal'
-                    error={!!jobPostingSourceError}
-                    SelectProps={{ 
-                      MenuProps: {
-                          PaperProps: {
-                              style: {
-                                  maxHeight: 200,
-                                  overflowY: 'auto',
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        select
+                        label="Job Posting Source"
+                        value={formState.jobPostingSource}
+                        onChange={(e) => handleInputChange('jobPostingSource', e.target.value)}
+                        error={!!jobPostingSourceError}
+                        SelectProps={{ 
+                          MenuProps: {
+                              PaperProps: {
+                                  style: {
+                                      maxHeight: 200,
+                                      overflowY: 'auto',
+                                  }
                               }
                           }
-                      }
-                  }}
-                  >
-                    {platformTypes.map((title, index) =>
+                      }}
+                    >
+                      {platformTypes.map((title, index) =>
                       <MenuItem key={index} value={title}>{title}</MenuItem>
                     )}
                   </TextField>
