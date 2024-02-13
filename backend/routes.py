@@ -143,7 +143,7 @@ def init_routes(app):
                     job.application_status = ApplicationStatus(new_status)
                     current_time = datetime.now()
 
-                    date_field = 'date_' + new_status.lower()
+                    date_field = 'date_' + new_status.lower().replace(' ', '_')
                     setattr(job, date_field, current_time)
                     
                     db.session.commit()
