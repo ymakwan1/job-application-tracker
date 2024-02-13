@@ -96,8 +96,9 @@ def init_routes(app):
                     'application_status': job.application_status.value
                 }
 
-                date_field = 'date_' + job.application_status.value.lower()
-                job_details['date'] = getattr(job, date_field).date().isoformat()
+                date_field_name = 'date_' + job.application_status.value.replace(' ', '_').lower()
+                date_field = getattr(job, date_field_name, None)
+                job_details['date'] = date_field.date().isoformat() if date_field else None
 
                 job_list.append(job_details)
 
@@ -221,8 +222,11 @@ def init_routes(app):
                     'application_status': job.application_status.value
                 }
 
-                date_field = 'date_' + job.application_status.value.lower()
-                job_details['date'] = getattr(job, date_field).isoformat()
+                date_field_name = 'date_' + job.application_status.value.replace(' ', '_').lower()
+                
+                date_field = getattr(job, date_field_name, None)
+                
+                job_details['date'] = date_field.date().isoformat() if date_field else None
 
                 success_msg = 'Job details fetched successfully'
                 logger.info(success_msg)
@@ -240,7 +244,6 @@ def init_routes(app):
     def update_job(job_id):
         try:
             data = request.get_json()
-
             job = Job.query.filter_by(job_id=job_id).first()
 
             if job:
@@ -260,8 +263,8 @@ def init_routes(app):
                 if new_status and new_status in [status.value for status in ApplicationStatus]:
                     job.application_status = ApplicationStatus(new_status)
 
-                    date_field = 'date_' + new_status.lower()
-                    setattr(job, date_field, datetime.strptime(new_date_str, '%Y-%m-%d'))
+                    date_field = 'date_' + new_status.lower().replace(" ",  "_")
+                    setattr(job, date_field, datetime.strptime(new_date_str, '%Y-%m-%dT%H:%M:%S.%fZ'))
                 
                 db.session.commit()
                 success_msg = 'Job details updated successfully'
