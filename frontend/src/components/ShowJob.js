@@ -21,6 +21,7 @@ import {
   IconButton,
   InputLabel,
   Tooltip,
+  TablePagination
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import apiService from '../apiService';
@@ -39,6 +40,8 @@ const ShowJob = () => {
   const [statusChangeSuccess, setStatusChangeSuccess] = useState(null);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,6 +114,16 @@ const ShowJob = () => {
   const handleStatusFilterChange = (event) => { 
     setStatusFilter(event.target.value);
   };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
 
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -189,29 +202,33 @@ const ShowJob = () => {
               : 'No jobs match the search criteria.'}
           </Typography>
         ) : (
+          <>
           <TableContainer component={Paper} elevation={0} style={{ marginTop: '20px' }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ color: theme.palette.text.primary }}>Job ID</TableCell>
+                  {/* <TableCell style={{ color: theme.palette.text.primary }}>Job ID</TableCell> */}
                   <TableCell style={{ color: theme.palette.text.primary }}>Title</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Company</TableCell>
-                  <TableCell style={{ color: theme.palette.text.primary }}>Job Type</TableCell>
+                  {/* <TableCell style={{ color: theme.palette.text.primary }}>Job Type</TableCell> */}
                   <TableCell style={{ color: theme.palette.text.primary }}>Date</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Source</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Dashboard</TableCell>
-                  <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell>
+                  {/* <TableCell style={{ color: theme.palette.text.primary }}>Referral</TableCell> */}
                   <TableCell style={{ color: theme.palette.text.primary }}>Application Status</TableCell>
                   <TableCell style={{ color: theme.palette.text.primary }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {jobs.map((job) => (
+              {(rowsPerPage > 0
+                    ? jobs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    : jobs
+                  ).map((job) =>  (
                   <TableRow key={job.job_id}>
-                    <TableCell style={{ color: theme.palette.text.primary }}>{job.job_id}</TableCell>
+                    {/* <TableCell style={{ color: theme.palette.text.primary }}>{job.job_id}</TableCell> */}
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.title}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.company}</TableCell>
-                    <TableCell style={{ color: theme.palette.text.primary }}>{job.job_type}</TableCell>
+                    {/* <TableCell style={{ color: theme.palette.text.primary }}>{job.job_type}</TableCell> */}
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.date}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>{job.job_posting_source}</TableCell>
                     <TableCell style={{ color: theme.palette.text.primary }}>
@@ -219,7 +236,7 @@ const ShowJob = () => {
                         Dashboard
                       </a>
                     </TableCell>
-                    <TableCell style={{ color: theme.palette.text.primary }}>{job.referral ? 'Yes' : 'No'}</TableCell>
+                    {/* <TableCell style={{ color: theme.palette.text.primary }}>{job.referral ? 'Yes' : 'No'}</TableCell> */}
                     <TableCell style={{ color: theme.palette.text.primary }}>
                       <FormControl variant="outlined" size="small">
                         <Select
@@ -260,6 +277,16 @@ const ShowJob = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={jobs.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+        </>
         )}
         <Snackbar open={showSuccess} autoHideDuration={5000} onClose={() => setShowSuccess(false)}>
           <Alert onClose={() => setShowSuccess(false)} severity="success">
