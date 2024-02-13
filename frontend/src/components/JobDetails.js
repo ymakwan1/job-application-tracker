@@ -26,7 +26,7 @@ const JobDetails = () => {
   const theme = useTheme();
   const { job_id } = useParams();
   const [jobDetails, setJobDetails] = useState(null);
-  const [appliedDate, setAppliedDate] = useState(null);
+  const [appliedDate, setAppliedDate] = useState(new Date());
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
 
   const history = useNavigate();
@@ -56,7 +56,7 @@ const JobDetails = () => {
           jobPostingUrl: jobDetails.job_posting_url,
           dashboardUrl: jobDetails.dashboard_url,
           job_posting_source: jobDetails.job_posting_source,
-          date: dayjs(appliedDate).format('YYYY-MM-DD'),
+          date: appliedDate.toISOString(),
           referral: jobDetails.referral,
           referrer_name: jobDetails.referrer_name,
           application_status: jobDetails.application_status
@@ -75,6 +75,9 @@ const JobDetails = () => {
   const handleSnackbarClose = () => {
     setSuccessSnackbarOpen(false);
   };
+  const handleDateChange = (date) => {
+    setAppliedDate(date);
+  };  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -217,18 +220,18 @@ const JobDetails = () => {
                     <FormControl variant="outlined" fullWidth margin="normal">
                     <DatePicker
                         label="Date"
-                        textField={(props) => (
-                            <TextField
-                                {...props}
-                                variant="outlined"
-                                format="MM-dd-yyyy"
-                                label="Date"
-                                value={dayjs(appliedDate).format('MM-DD-YYYY')}
-                            />
-                        )}
                         value={appliedDate}
-                        onChange={(date) => setAppliedDate(date)}
-                    />
+                        onChange={handleDateChange}
+                        textField={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            // format="MM-dd-yyyy"
+                            label="Date"
+                            fullWidth
+                          />
+                        )}
+                      />
                     </FormControl>
                 </Grid>
                 <Grid item xs={12}>
